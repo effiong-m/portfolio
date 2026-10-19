@@ -1,12 +1,28 @@
-/**
- * Resolve asset path with base URL
- * @param path The asset path
- * @returns The resolved asset path with base URL
- */
-// eslint-disable-next-line import/prefer-default-export
-export function resolveAsset(path: string) {
+export default function resolveAsset(path: string) {
   if (!path) return '';
-  if (path.startsWith('http')) return path;
-  const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
-  return `${base}/${path}`.replace(/\/+/g, '/');
+
+  if (
+    path.startsWith('http://') ||
+    path.startsWith('https://') ||
+    path.startsWith('mailto:') ||
+    path.startsWith('#')
+  ) {
+    return path;
+  }
+
+  const base = import.meta.env.BASE_URL.replace(/^\/+|\/+$/g, '');
+  const cleanPath = path.replace(/^\/+/, '');
+
+  if (!cleanPath) {
+    return base ? `/${base}/` : '/';
+  }
+
+  // Avoid accidentally adding the base twice.
+  if (base && (cleanPath === base || cleanPath.startsWith(`${base}/`))) {
+    return `/${cleanPath}`;
+  }
+
+  return base
+    ? `/${base}/${cleanPath}`
+    : `/${cleanPath}`;
 }

@@ -4,7 +4,7 @@ import Base from '@/layouts/Base.astro';
 import Banner from '@/components/Banner.astro';
 import { Icon } from 'astro-icon/components';
 
-import { resolveAsset } from '@/utils/paths.ts';
+import resolveAsset from '@/utils/paths.ts';
 import type { AllowedTechs } from '@/content.config';
 
 const publicProjects = await getCollection(

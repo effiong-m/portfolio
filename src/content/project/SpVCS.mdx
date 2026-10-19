@@ -1,0 +1,845 @@
+---
+draft: false
+title: Wearable SpVCS for Gait Analysis in the Natural Environment
+description: A wearable, markerless Smartphone Video Capture System (SpVCS) for capturing lower limb kinematics during walking to enable remote gait analysis.
+
+thumbnail:
+  src: /assets/projects/spvcs/finaldesign_donned.jpg
+  alt: Participant wearing the SpVCS
+
+gallery:
+  - src: /assets/projects/spvcs/design_conceptualizatiion.png
+    alt: "CAD design of the wearable smartphone mount"
+
+  - src: /assets/projects/spvcs/experimental_setup_IMU.png
+    alt: "CAD design of the wearable smartphone mount"
+
+  - src: /assets/projects/spvcs/finaldesign_donned.jpg
+    alt: "Final wearable smartphone mount prototype"
+
+resources:
+  - label: "PROPEL Lab"
+    url: "https://hollandbloorview.ca/research-education/bloorview-research-institute/research-centres-labs/propel-lab"
+
+  - label: "Thesis Presentation"
+    url: "https://drive.google.com/file/d/1OJpg5HBY2vbKw5HfaUrbK_tTDXOT5HWb/view?usp=sharing"
+
+tech:
+  - IMUs
+  - Excel
+  - CAD
+  - Fusion360
+  - 3D Printing
+  - Prototyping
+  - Data Analysis
+  - Data Visualization
+  - Kinovea
+
+categories:
+  - Biomedical
+  - Data
+
+publishDate: 2026-04-01
+
+projectType: Course Project
+course: Undergraduate Thesis
+affiliation: University of Toronto
+themeColor: "#FAA0A0"
+
+highlights:
+  - Designed and prototyped the wearable system using an off-the-shelf belt, 3D printed parts, and fasteners.
+  - Developed and tested the system architecture, gait event identification workflow, and video capture protocol using feasibility studies, iterative design, and Kinovea.
+  - Validated temporal gait parameters against laboratory gold standard equipment and IMU sensors.
+
+results:
+  - Demonstrated the feasibility of using only a wearable smartphone video without body worn markers or inertial sensors to extract gait events and temporal gait parameters and support more accessible gait monitoring.
+  - Demonstrated highly promising gait event detection and temporal parameters estimation, with strongest performance under slow walking condition.
+  - Showed the potential for a low cost, 2D video based system to extend gait analysis beyond labs or clinics settings, creating a pathway toward continuous real world monitoring and personalized rehabilitation.
+  
+
+reflection: 
+  This project taught me the full design lifecycle of a wearable device especially how to integrate mechanical design, video capture and analysis, and experimental validation into a system. It served as a good reminder on how non-linear the design process is and how important it is to have rigorous calibration across different systems! (please don't forget to calibrate, guys). Patience and persistence were with me all the way during this project and they came in really handy during troubleshooting sessions.
+---
+
+## The Problem
+Gait analysis is a clinical tool for diagnosing and monitoring gait disorders (disorders in walking pattern). Traditional gait assessment systems can provide highly accurate measurements, but they often rely on expensive laboratory-based equipment and controlled environments that do not reflect real life walking variabilities. Inertial sensors and smartphone video applications, on the other hand, offer portable alternatives but are currently limited by integration drift, lack of terrain information, the requirement of physical markers, and limited application in the natural environment.
+
+This project explored whether a wearable system using a smartphone video could be used to assess gait during movement in a more natural environment or terrain while maintaining a consistent relationship between the camera and the participant. The main objective was to develop and validate a wearable, markerless smartphone video capture system capable of accurately capturing sagittal plane lower limb kinematics outside labs and clincs.
+
+To address the identified problem, I defined the following user need:
+
+<div class="user-need">
+  <span class="user-need-label">User Need</span>
+  <p>
+    Enable individuals with lower limb mobility challenges to obtain gait data
+    representative of their everyday movement in their natural environment in
+    order to support remote gait assessment.
+  </p>
+</div>
+
+## System Design
+The final SpVCS design used a smartphone mounted to a custom 3D-printed two-rod assembly. The assembly attached to a waist belt through a rigid belt-mount interface and a 1/4" screw, allowing the system to be donned and removed as a wearable unit.
+
+The system was designed around four core functions:
+- Securely attach the device to the user without restricting movement
+- Maintain a repeatable smartphone position and sagittal-plane view
+- Capture video containing the required lower-limb gait events
+- Process the video to extract gait events and temporal parameters
+
+### Functional architecture
+
+<figure id="figure-system-architecture" class="project-figure">
+  <img
+    src="/assets/projects/spvcs/sysarchitecture.png"
+    alt="Functional architecture of the wearable SpVCS"
+  />
+  <figcaption>System architecture</figcaption>
+</figure>
+
+## Design Development
+### Design requirements
+The main design requirements were derived from literature, the user need, and the functional decomposition of the system. Objectives define what the system is intended to achieve, while metrics and criteria specify how those objectives are measured and what constitutes successful performance. Constraints define the limits within which the system must operate.
+
+The SpVCS objectives were divided into two areas: **device functionality**, which focused on capturing accurate and usable sagittal plane video for gait analysis, and **device operability and construction**, which focused on the system's form factor and usability. 
+
+<table>
+  <caption>Design requirements for hardware system.</caption>
+  <thead>
+    
+    <tr>
+      <th>Objectives</th>
+      <th>Metrics</th>
+      <th>Criteria</th>
+      <th>Constraints</th>
+      <th>Verification Method</th>
+    </tr>
+
+    <tr>
+      <th colspan="5">System Functionality</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>1.0 Fixed mount geometry and view</td>
+      <td>Angular deviation from sagittal plane (&deg;)</td>
+      <td>As low as possible</td>
+      <td>&le; &plusmn;5&deg; deviation during walking</td>
+      <td>Walking trial/measurement test</td>
+    </tr>
+    <tr>
+      <td>2.0 Motion artefacts and mechanical stabilization</td>
+      <td>Frame to frame rotation and translation of the camera (&deg;)</td>
+      <td>As low as possible</td>
+      <td>Minimal motion blur and &le;5&deg; unintended rotation per gait cycle</td>
+      <td>Walking trial/dynamic performancetest</td>
+    </tr>
+    <tr>
+      <td>3.0 Visibility of lower limb</td>
+      <td>Percentage estimate of gait cycle with visible gait events (%)</td>
+      <td>As high as possible</td>
+      <td>&ge; 95% of frames with unobstructed heel and toe view</td>
+      <td>Walking trial/visual inspection</td>
+    </tr>
+
+    <tr>
+      <td colspan = "5"><b>System Operability and Construction</b></td>
+    </tr>
+    <tr>
+      <td>4.0 User comfort</td>
+      <td>User reported inference</td>
+      <td>As low as possible</td>
+      <td>Must not restrict upper or lower limb motion</td>
+      <td>Walking trial/user comfort rating</td>
+    </tr>
+    <tr>
+      <td>5.0 Usability</td>
+      <td>Setup time (mins)</td>
+      <td>As low as possible</td>
+      <td>Don and doff in &le; 5mins</td>
+      <td>Time to complete test</td>
+    </tr>
+    <tr>
+      <td>6.0 Portability</td>
+      <td>Number of extraneous components</td>
+      <td>As low as possible</td>
+      <td>Should be easy to carry around and store away</td>
+      <td>Visual inspection</td>
+    </tr>
+  </tbody>
+</table>
+
+### Mounting configuration selection
+To satisfy the requirements for smartphone stability, user comfort, camera positioning, and unrestricted walking, I considered several mounting configurations for IMU sensors and 2D video recordings documented in existing literature. I then adapted these for the SpVCS and used a morphological chart to compare possible solutions across the major objectives of the system.
+
+From the morphological chart, I determined that a **waist-mounted system** mostly satisfies the design requirements of the wearable system defined in Table 1. Compared to the chest, head and thigh, the waist provides a more stable reference frame relative to the body’s centre. This aids in reducing motion artefacts. Furthermore, more reliable sagittal plane capture of the two lower limbs is most possible if the wearable system is waist-mounted compared to head or chest-mounted.
+
+<table>
+  <caption>Morphological chart used to identify ideal mounting configuration for proposed system</caption>
+  <thead>
+    <tr>
+      <th>Requirement</th>
+      <th>Waist-mounted</th>
+      <th>Chest-mounted</th>
+      <th>Head-mounted</th>
+      <th>Thigh-mounted</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>Motion artefact/stabilization</td>
+      <td>Less impact on stability as pelvic motion is smoother than head or thigh motion</td>
+      <td>Less impact on stability as the chest is closer to the body’s centre of gravity</td>
+      <td>Stability is highly impacted by head motion (due to rotation)</td>
+      <td>Stability is highly impacted by thigh motion</td>
+    </tr>
+    <tr>
+      <td>Lower limb visibility</td>
+      <td>Consistent bilateral limb visibility</td>
+      <td>Good visibility, although knees and feet are often occluded, depending on the length of protrusion from the chest</td>
+      <td>Both limbs are visible, but perspective introduces errors due to parallax and warping</td>
+      <td>Often focuses on a single leg</td>
+    </tr>
+    <tr>
+      <td>Sagittal plane alignment</td>
+      <td>Allows for near-ideal sagittal alignment</td>
+      <td>The setup to achieve this might be complex and include additional hardware (like a wide angle lens); the most feasible view is frontal</td>
+      <td>The setup to achieve this might be complex; the most feasible view is frontal</td>
+      <td>Introduces excessive rotation during movement</td>
+    </tr>
+    <tr>
+      <td>Key gait events detection</td>
+      <td>Sagittal view allows for accurate heel strike and toe off detection</td>
+      <td>Frontal view introduces occlusions that impact heel strike and toe off detection</td>
+      <td>Frontal view introduces occlusions that impact heel strike and toe off detection</td>
+      <td>Motion artefacts impact the accuracy of heel strike and toe off detection</td>
+    </tr>
+    <tr>
+      <td>User comfort</td>
+      <td>High</td>
+      <td>Moderate</td>
+      <td>Low</td>
+      <td>Moderate</td>
+    </tr>
+    <tr>
+      <td>Gait interference</td>
+      <td>Moderate (arm movement could be restricted)</td>
+      <td>Low</td>
+      <td>Moderate (head movement is constrained to the field of view)</td>
+      <td>High</td>
+    </tr>
+    <tr>
+      <td>Ease of donning/doffing</td>
+      <td>High</td>
+      <td>Low</td>
+      <td>Moderate</td>
+      <td>High</td>
+    </tr>
+  </tbody>
+</table>
+
+### Preliminary risk analysis
+To identify potential failure modes associated with the wearable SpVCS, I conducted a preliminary failure modes and effects analysis (FMEA). The goal of this analysis was to evaluate the impact of the identified risks on the validity and reliability of gait measurements and to inform design choices for the feasibility study and then the final wearable system. Since this system is a non-interventional measurement tool, severity ratings (see [Table 3](#table-severity)) were defined in terms of the accuracy and validity of extracted gait parameters.
+
+From the FMEA, it was determined that the reliability and accuracy of gait parameters extracted from the wearable SpVCS depended heavily on the functional requirements of the system, like fixed mount geometry and non-occlusion of the feet.
+
+<table id="table-severity">
+  <caption>Severity rating scale</caption>
+  <thead>
+    <tr>
+      <th>Rating</th>
+      <th>Severity</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1-3</td>
+      <td>Minor impact</td>
+    </tr>
+    <tr>
+      <td>4-6</td>
+      <td>Moderate impact</td>
+    </tr>
+    <tr>
+      <td>7-10</td>
+      <td>Severe impact</td>
+    </tr>
+  </tbody>
+</table>
+
+<table id="fmea">
+  <caption>Key failure modes identified during preliminary risk analysis</caption>
+  <thead>
+    <tr>
+      <th>Failure mode</th>
+      <th>Potential cause</th>
+      <th>Potential effect</th>
+      <th>Severity</th>
+      <th>Mitigation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Camera misalignment</td>
+      <td>Improper mounting</td>
+      <td>Incorrect gait event timing identification</td>
+      <td>8</td>
+      <td>Belt and camera angle should be adjustable by users</td>
+    </tr>
+    <tr>
+      <td>Camera motion during walking</td>
+      <td>Loose attachment to belt</td>
+      <td>Increased noise (motion artefacts), inconsistent measurements</td>
+      <td>7</td>
+      <td>Ensure anti-slip materials are used, and the mount is securely attached to the belt</td>
+    </tr>
+    <tr>
+      <td>Occlusion of feet</td>
+      <td>Clothing interference, camera angle</td>
+      <td>Failure to detect gait events</td>
+      <td>8</td>
+      <td>Optimising the position of the camera and stating clothing recommendations in the video capture protocol</td>
+    </tr>
+    <tr>
+      <td>Poor lighting conditions</td>
+      <td>Shadows, low light</td>
+      <td>Reduced gait event detection accuracy</td>
+      <td>6</td>
+      <td>Include minimum lighting requirements in the video capture protocol</td>
+    </tr>
+    <tr>
+      <td>User discomfort</td>
+      <td>Poor form factor/design</td>
+      <td>Reduced adherence</td>
+      <td>5</td>
+      <td>Iterate on the design to accommodate ergonomic concerns</td>
+    </tr>
+    <tr>
+      <td>Smartphone overehating</td>
+      <td>Long video recording periods</td>
+      <td>Data loss</td>
+      <td>4</td>
+      <td>Include a minimum amount of time for video data collection in the video capture protocol</td>
+    </tr>
+  </tbody>
+</table>
+
+### Feasibility study
+Before starting on any physical design work, I conducted a feasibility study to determine whether a moving smartphone camera could produce gait-event measurements comparable with a fixed-camera reference.
+
+A participant was recorded at a self-selected walking pace using a handheld smartphone approximately 0.21 m from the body. A second smartphone was fixed 0.38 m above the walking surface and used as the reference. Three trials were collected for each camera view, with approximately 38 gait cycles per trial.
+
+<figure id="feasibility-setup" class="project-figure">
+  <img
+    src="/assets/projects/spvcs/feasibility_study_setup.png"
+    alt="Experimental setup for the feasibility study"
+  />
+  <figcaption>Feasibility study setup</figcaption>
+</figure>
+
+## Video Processing and Gait Parameters Extraction
+The obtained video was processed initially using Kinovea. However, since automatic tracking of the heel and toe was largely accurate, I opted to manually identify gait events using frame by frame inspection.
+The extracted events were:
+- Heel strike (HS)
+- Toe off (TO)
+
+These events were then used to calculate temporal parameters: stride, stance, and swing time using the formulas in Table 5.
+
+
+<table>
+  <caption>Formulas used for temporal gait parameters calculation</caption>
+  <thead>
+    <tr>
+      <th>Temporal Parameter</th>
+      <th>Definition</th>
+      <th>Formula</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Stride time</td>
+      <td>Time between consecutive heel strikes of the same limb</td>
+      <td><i>T<sub>HS(i+1)</sub> - T<sub>HS(i)</sub></i></td>
+    </tr>
+    <tr>
+      <td>Stance time</td>
+      <td>Time between heel strike and subsequent toe off of the same gait cycle</td>
+      <td><i>T<sub>TO</sub> - T<sub>TO</sub></i></td>
+    </tr>
+    <tr>
+      <td>Swing time</td>
+      <td>Time between toe off and the next heel strike of the same limb</td>
+      <td><i>Stride time - Stance time</i></td>
+    </tr>
+  </tbody>
+</table>
+
+### Conceptualization and Preliminary Design
+The feasibility study informed the mounting location and camera requirements for the physical design. A parametric 3D human anthropometric model was then used in Fusion 360 to map the proposed geometry onto the body.
+The mounting point was placed at the centre of the lower back. From this origin, rod 1 was projected 95 mm posteriorly to push the subsequent linked system outside the user’s immediate movement envelope. From the distal end of rod 1, rod 2 was projected inferiorly and posteriorly (away from the body) at a 45˚angle relative to the horizontal axis of rod 1. Finally, rod 3 was projected inferiorly and anteriorly (angling back toward the user) at a 45˚ angle relative to the vertical axis of rod 2.
+
+A 123° horizontal field of view was used to model the smartphone camera. The target focal distance was established at 500 mm from the user’s foot, with a required horizontal coverage of at least 1000 mm to successfully capture two complete steps (from initial heel strike to terminal toe off). The length of rod 3 was iteratively adjusted within Fusion360 until the FOV cone completely covered the target horizontal tracking zone. This finalized rod 2 at a length of 300mm and rod 3 at 500mm, successfully positioning the camera lens at an optimal height of 530mm from the ground.
+
+<figure class="project-figure">
+  <img
+    src="/assets/projects/spvcs/design_conceptualizatiion.png"
+    alt="Anthropometric model used to determine SpVCS dimensions"
+  />
+  <figcaption>Design conceptualization: Anthropometric model mapping</figcaption>
+</figure>
+
+### Rod dimensioning
+Rod dimensions were analytically determined to withstand the mechanical loads from the smartphone while maintaining elastic behaviour.
+
+- **Design load:** 5.65 N effective tip load used for the worst-case bending case.
+- **Material:** PETG with a reported yield strength of 50 MPa and a 10× dynamic safety factor, giving an allowable stress of 5 MPa.
+- **Cross-section:** A rectangular section was selected to increase bending stiffness and provide flat mating surfaces.
+- **Geometry:** A 20 mm rod width was selected to limit lateral deflection; the required thickness was calculated analytically and increased to provide additional geometric margin.
+- **Interfaces:** The CAD design incorporated a 1/4" attachment interface, 50% thickness lap joints, and M5 bolt holes.
+- **Stress reduction:** 5 mm fillets were added at reduced-thickness transitions and 3 mm fillets along outer edges.
+- **Verification:** Joint fit and rod assembly were checked in CAD before static stress simulation.
+
+### CAD iterations
+The physical design was refined through four CAD iterations. Each iteration addressed a specific failure observed during pilot testing.
+
+<figure class="project-figure">
+  <div class="project-cad-grid">
+
+    <div class="project-cad-item">
+      <img
+        src="/assets/projects/spvcs/iteration1.png"
+        alt="Initial four rod CAD design"
+      />
+      <p>
+        <strong>Iteration 1 - Four rod system</strong><br />
+        Rod 3 was divided to accommodate 3D-printer volume limits. The distal phone-holder mass caused excessive bending and movement noise, while the geometry required changes to the mounting angle to achieve the target field of view.
+      </p>
+    </div>
+
+    <div class="project-cad-item">
+      <img
+        src="/assets/projects/spvcs/iteration2.png"
+        alt="Second CAD design using an L-shaped rod"
+      />
+      <p>
+        <strong>Iteration 2 - L-shaped rod 1</strong><br />
+        An L-shaped rod 1 added the required lateral offset, but shifted the camera into an over-the-feet view that did not maintain the required sagittal plane view. Fillets were removed for more flush overlap of rods.
+      </p>
+    </div>
+
+    <div class="project-cad-item">
+      <img
+        src="/assets/projects/spvcs/iteration3.png"
+        alt="Third CAD design iteration"
+      />
+      <p>
+        <strong>Iteration 3 - Adjustable distal assembly</strong><br />
+        A revised linkage restored the sagittal-plane view, but the serial joints and distal smartphone mass could not maintain the required angle during walking.
+      </p>
+    </div>
+
+    <div class="project-cad-item">
+      <img
+        src="/assets/projects/spvcs/finaldesign_assembly_cad.png"
+        alt="Final two-rod CAD design"
+      />
+      <p>
+        <strong>Iteration 4 - Final two-rod system</strong><br />
+        The design was consolidated into two rigid rods, reducing the number of joints and effective moment arms while preserving the required camera view.
+      </p>
+    </div>
+
+  </div>
+
+  <figcaption>Iterative design process</figcaption>
+</figure>
+
+### Static stress simulation
+The initial and final designs were evaluated in Fusion 360 using a static stress simulation to assess their responses under the expected loading conditions. The initial four-rod design produced a minimum safety factor of 2.362. The final two-rod design increased the minimum safety factor to 3.272 and reduced the maximum tip displacement from 118.779 mm to 50.937 mm, a reduction of approximately 57%. The final design therefore provided greater static structural margin while reducing the deformation that contributed to camera movement. The simulation was a static load assessment and did not evaluate cyclic fatigue.
+
+<figure class="project-figure">
+  <img
+    src="/assets/projects/spvcs/initialstresssim.png"
+    alt="Static stress analysis of the initial four rod SpVCS"
+  />
+  <figcaption>Initial design - static stress simulation results</figcaption>
+</figure>
+
+<figure class="project-figure">
+  <img
+    src="/assets/projects/spvcs/finalstresssim.png"
+    alt="Static stress analysis of the final two rod SpVCS"
+  />
+  <figcaption>Static stress simulation resullts of the final consolidated two rod design</figcaption>
+</figure>
+
+## Verification
+<table>
+  <caption>Verification test against design requirements</caption>
+  <thead>
+    <tr>
+      <th>Design Requirement</th>
+      <th>Verification Method</th>
+      <th>Test Procedure</th>
+      <th>Acceptance Criteria</th>
+      <th>Pass/Fail</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0 Fixed mount geometry and view</td>
+      <td>Walking trial/measurement test</td>
+      <td>Have participant walk while wearing the device. Analyse the video using Kinovea angle tool to calculate camera's angular deviation relative to the sagittal plane throughout the gait cycle</td>
+      <td>Angular deviation remains ≤ ±5° during walking</td>
+      <td>Pass</td>
+    </tr>
+    <tr>
+      <td>2.0 Motion artefacts and mechanical stabilization</td>
+      <td>Walking trial/dynamic performance test</td>
+      <td>Record walking trials at different speeds. Use IMU gyroscope and accelerometer to quantify frame to frame camera rotation and translation. Visually inspect for motion blur</td>
+      <td>Frame to frame unintended rotation ≤5° per gait cycle with minimal motion blur</td>
+      <td>Pass</td>
+    </tr>
+    <tr>
+      <td>3.0 Visibility of lower limb</td>
+      <td>Walking trial/visual inspection</td>
+      <td>Record participants walking under different conditions. Count the percentage of frames where the heel and toe remain fully visible and unobstructed</td>
+      <td>≥95% of frames contain unobstructed heel and toe visibility</td>
+      <td>Pass</td>
+    </tr>
+    <tr>
+      <td>4.0 User comfort</td>
+      <td>Walking trial/user comfort rating</td>
+      <td>Participants wear the system while completing walking trials (> 5 minutes). Collect comfort ratings using a Likert scale and observe whether the device restricts natural movement</td>
+      <td>No observable restriction of upper or lower limb motion and at least 3/5 reported comfort on Likert scale</td>
+      <td>Pass</td>
+    </tr>
+    <tr>
+      <td>5.0 Usability</td>
+      <td>Setup time (mins)</td>
+      <td>Measure the time required for users unfamiliar with the device to don, adjust, and doff following written instructions</td>
+      <td>Complete setup and removal within ≤5 minutes</td>
+      <td>Pass</td>
+    </tr>
+    <tr>
+      <td>6.0 Portability</td>
+      <td>Number of extraneous components</td>
+      <td>Measure the number of separate components rewuired to setup the device</td>
+      <td>Device consists of less than 3 movable components needed for setup and operation</td>
+      <td>Pass</td>
+    </tr>
+  </tbody>
+</table>
+
+## Validation
+The validation test was designed to determine whether gait events and temporal parameters measured from the wearable SpVCS agreed with reference measurements.
+### Validation Method
+Validation was performed in two phases on a single, healthy participant to assess both controlled measurement accuracy and performance in a natural environment.
+
+<table>
+  <caption>Validation phases used to evaluate the SpVCS.</caption>
+  <thead>
+    <tr>
+      <th>Phase</th>
+      <th>Reference</th>
+      <th>Conditions</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1 - Controlled</td>
+      <td>GaitRite® pressure sensing walkway</td>
+      <td>Super-slow and self-selected walking</td>
+      <td>Assess optical tracking accuracy and the effect of walking speed.</td>
+    </tr>
+    <tr>
+      <td>2 - Natural environment</td>
+      <td>Ankle-worn Movella DOT IMUs</td>
+      <td>Self-selected walking speed, straight walking and turning</td>
+      <td>Assess real world viability and susceptibility to occlusion and motion induced noise.</td>
+    </tr>
+  </tbody>
+</table>
+
+<figure class="project-figure">
+  <img
+    src="/assets/projects/spvcs/experimental_setup_IMU.png"
+    alt="Natural environment validation setup using ankle-worn IMUs"
+  />
+  <figcaption>Natural environment (phase 2) validation setup</figcaption>
+</figure>
+
+### Data processing and synchronization
+Video and reference data were synchronized and processed before calculating gait event timing and temporal parameters. The analysis used Excel for data processing and statistical analysis. Agreement was evaluated using standard deviation and Bland–Altman analysis.
+
+<figure class="project-figure">
+  <img
+    src="/assets/projects/spvcs/dataprocessn.png"
+    alt="Data processing and synchronization workflow"
+  />
+  <figcaption>Data processing and systems synchronization workflow</figcaption>
+</figure>
+
+## Results
+### Feasibility study findings
+The initial feasibility study showed close temporal agreement for gait events (HS and TO) between the moving smartphone system and the fixed-camera reference.
+
+<table>
+  <caption>Feasibility Study: Gait Event Timing MAD</caption>
+  <thead>
+    <tr>
+      <th>Gait Event</th>
+      <th>Mean Absolute Difference (s)</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>Heel Strike</td>
+      <td>0.02</td>
+    </tr>
+
+    <tr>
+      <td>Toe Off</td>
+      <td>0.05</td>
+    </tr>
+  </tbody>
+</table>
+
+Stride time showed a mean absolute difference (MAD) of approximately 0.02s, while stance and swing time each showed approximately 0.05s differences. These results suggested that heel-strike timing was more consistent than toe-off timing and that toe-off uncertainty contributed more strongly to variability in the derived temporal parameters.
+
+<figure class="project-figure">
+  <img
+    src="/assets/projects/spvcs/bland altman feasibility (stride, swing, stance).png"
+    alt="Bland Altman plots comparing temporal gait parameters between the fixed-camera and handheld systems"
+  />
+  <figcaption>Feasibility study - Bland Altman plots for derived temporal parameters (Left - stride time, right - swing time, bottom - stance time)</figcaption>
+</figure>
+
+### Validation results
+Bland Altman analysis was used to quantify the mean bias and 95% limits of agreement (LoA) for each gait event and speed combination. Derived temporal gait parameters (stance time, swing time, and stride time) were subsequently compared between the two systems using grouped bar graphs with error bars representing the standard deviation across trials. All parameters were assessed separately for the right and left limbs. 
+
+### Comparison with GaitRite®
+Across both walking speeds, heel strike showed smaller bias and narrower limits of agreement than toe off. Increasing walking speed also increased both systematic bias and variability, with the largest disagreement observed for toe off at self-selected speed.
+The two key gait event measurements (HS and TO) produced the following results:
+<table>
+  <caption>Bland-Altman analysis results of SpVCS vs GaitRite across all gait event and speed conditions</caption>
+  <thead>
+    <tr>
+      <th>Gait Event</th>
+      <th>Walking Speed</th>
+      <th>Mean Bias (s)</th>
+      <th>Lower LoA (s)</th>
+      <th>Upper LoA (s)</th>
+      <th>Spread (s)</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>Heel Strike</td>
+      <td>Super slow</td>
+      <td>0.234</td>
+      <td>-0.058</td>
+      <td>0.527</td>
+      <td>0.585</td>
+    </tr>
+
+    <tr>
+      <td>Heel Strike</td>
+      <td>Self-selected</td>
+      <td>0.283</td>
+      <td>-0.415</td>
+      <td>0.982</td>
+      <td>1.397</td>
+    </tr>
+
+    <tr>
+      <td>Toe Off</td>
+      <td>Super slow</td>
+      <td>0.316</td>
+      <td>0.016</td>
+      <td>0.616</td>
+      <td>0.600</td>
+    </tr>
+
+    <tr>
+      <td>Toe Off</td>
+      <td>Self-selected</td>
+      <td>0.397</td>
+      <td>-0.392</td>
+      <td>1.186</td>
+      <td>1.578</td>
+    </tr>
+  </tbody>
+</table>
+
+### Temporal parameter results
+Overall, stride time showed the most consistent agreement between the SpVCS and GaitRite® across both walking speeds. Swing time also showed close agreement, while stance time diverged substantially at self-selected speed, indicating that faster walking presented a greater challenge for accurately detecting the gait events.
+
+<figure class="project-figure">
+  <img
+    src="/assets/projects/spvcs/bargaitrite.png"
+    alt="Temporal parameter comparision for SpVCS vs GaitRite® across walking speeds"
+  />
+  <figcaption> Temporal parameter comparision for SpVCS vs GaitRite® across walking speeds (Left - stance time, right - swing time, bottom - stride time)</figcaption>
+</figure>
+
+
+### Comparison with IMU sensors
+Compared with the GaitRite® comparison, the IMU results generally showed tighter agreement between the SpVCS and reference measurements, with the strongest agreement observed for toe-off during straight walking. Results during turning were less conclusive because of the limited number of observations and occasional far foot occlusion.
+
+The two key gait event measurements (HS and TO) produced the following results:
+<table>
+  <caption>Bland-Altman analysis results of SpVCS vs IMU sensors across all gait event and walking modes</caption>
+  <thead>
+    <tr>
+      <th>Gait Event</th>
+      <th>Walking Mode</th>
+      <th>Mean Bias (s)</th>
+      <th>Lower LoA (s)</th>
+      <th>Upper LoA (s)</th>
+      <th>Spread (s)</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>Heel Strike</td>
+      <td>Straight walking</td>
+      <td>0.126</td>
+      <td>-0.032</td>
+      <td>0.283</td>
+      <td>0.315</td>
+    </tr>
+
+    <tr>
+      <td>Heel Strike</td>
+      <td>Turning</td>
+      <td>0.017</td>
+      <td>-0.323</td>
+      <td>0.358</td>
+      <td>0.681</td>
+    </tr>
+
+    <tr>
+      <td>Toe Off</td>
+      <td>Straight walking</td>
+      <td>0.225</td>
+      <td>0.105</td>
+      <td>0.346</td>
+      <td>0.241</td>
+    </tr>
+
+    <tr>
+      <td>Toe Off</td>
+      <td>Turning</td>
+      <td>0.132</td>
+      <td>-0.107</td>
+      <td>0.372</td>
+      <td>0.479</td>
+    </tr>
+  </tbody>
+</table>
+
+### Temporal parameter results
+The SpVCS consistently overestimated stance time and underestimated swing time relative to the IMU, while stride time remained closely aligned across straight walking and turning conditions. Together with the GaitRite® comparison, these findings suggest that stride time was the most robust derived temporal parameter measured by the SpVCS across the tested walking conditions.
+
+<figure class="project-figure">
+  <img
+    src="/assets/projects/spvcs/barimu.png"
+    alt="Temporal parameter comparision for SpVCS vs ankle-worn IMU sensors across walking modes"
+  />
+  <figcaption>Temporal parameter comparision for SpVCS vs ankle-worn IMU sensors across walking modes (Left - stance time, right - swing time, bottom - stride time)</figcaption>
+</figure>
+
+## Practical Implications of Findings
+The findings from this project suggest that the wearable SpVCS has potential as a portable, lower-cost approach for gait analysis outside the laboratory. The strongest agreement with GaitRite was observed during super-slow walking, which is relevant to the target population of individuals with mobility impairments.
+Compared with laboratory based gold standard systems, the SpVCS can be used without dedicated equipment or clinical space, supporting potential deployment in home and community settings. The results suggest that the system can provide useful approximations of stride time and, at super-slow walking speeds, stance and swing time.
+
+The IMU comparison further demonstrated that stride time measurements remained consistent across different reference systems and walking conditions, supporting the potential of the wearable SpVCS for portable gait analysis in less controlled environments.
+
+## System Limitations & Future Work
+### Limitations
+This project has limitations in both the experimental methodology and hardware performance.
+
+**Experimental scope:** Validation was conducted with a single participant, limiting the ability to characterize SpVCS performance across a broader range of gait speeds and walking patterns. Gait events were also identified manually, frame by frame, by a single researcher. This introduces observer subjectivity, and inter-rater and intra-rater reliability were not assessed.
+
+**Reference uncertainty:** Agreement was evaluated against GaitRite and ankle-worn IMUs, but neither should be treated as an error-free representation of true gait event timing. GaitRite has its own measurement uncertainty, while IMU measurements depend on sensor placement and algorithmic detection. The observed agreement therefore represents inter-system agreement rather than absolute accuracy. A consistent positive bias across conditions also suggests that synchronization and event extraction could be further calibrated.
+
+**Hardware performance:** Vibrational noise increased at faster walking speeds, highlighting a structural limitation of the current design. Turning trials also introduced far-foot occlusion and were limited by a smaller number of observations. Finally, the study focused on temporal gait parameters and did not evaluate spatial measurements, which would require camera calibration to a known reference frame.
+
+### Future Work
+Future development of the SpVCS will focus on improving mechanical stability, strengthening validation, and automating gait analysis.
+
+**System optimization:** The rod structure and geometry could be redesigned to reduce vibration at higher walking speeds. This could include evaluating higher stiffness materials and incorporating stabilization sensors without making the overall system bulky.
+
+**Expanded validation:** Future studies would include a larger participant cohort, a wider range of gait speeds and walking conditions, and more complex movement in natural environments. Comparison with additional established video-based gait assessment systems would also help characterize agreement and reliability.
+
+**Automated analysis:** A computer vision pipeline could replace manual gait-event identification, reducing observer subjectivity and improving analysis efficiency.
+
+**Natural gait assessment:** Future studies should also investigate whether wearing the SpVCS alters the participant's natural walking pattern, particularly as the system is intended for use outside controlled laboratory environments.
+
+## Reflection & Learnings
+Working on this project taught me that engineering design is not about finding a single ideal solution. More often, it is about making tradeoffs between performance, usability, manufacturability, time, and project constraints. One of the biggest lessons came from the iterations on the rod design. Initially, I had included a requirement to have the full rod system to be an adjustable and foldable device. This was to improve portability and accommodate different users. As I continued to work on the design, I realized that these features added mechanical complexity and extended the prototyping timeline. Ultimately, I had to prioritize the requirements that were most critical to the system's core function, (that is, stable camera positioning, adequate field of view, structural performance, and ease of use) and simplify the design to meet the project timeline. Working through these compromises made the design process feel much less linear than I initially expected and taught me to treat iteration as part of the engineering process rather than evidence that an initial design was unsuccessful.
+
+Going through the iterative design process reinforced several principles that are important in medical device development: starting from user needs, translating them into measurable requirements, evaluating risks early, iterating through prototypes, and verifying that the final design meets its intended performance. It also showed me the value of revisiting requirements as a design evolves rather than treating them as fixed once the project begins.
+
+Another lesson I learned while working on this project was the importance of designing the system and its validation strategy together. Early design decisions such as camera position, mounting geometry, and field of view directly affected what could later be measured reliably. Iterating on the physical design therefore required considering not only whether the device could be built, but also whether its output could be meaningfully evaluated against a reference system. This reinforced the importance of traceability between requirements, design decisions, testing, and validation.
+
+With more time, I would revisit the portability and adjustability requirements and investigate a more compact, foldable architecture without compromising structural stability or camera alignment. I would also expand the validation study to more participants and walking conditions and modify exisiting libraries like the YOLOv8 to automate gait event detection and reduce observer subjectivity.
+
+In conclusion, I learned that good engineering is not only about designing what is technically possible but it is about understanding what matters most to the end users, making tradeoffs that enable the core functions of the system to be realized, and developing a solution that is appropriate for the user, the application, and the constraints of the project. Moving forward, this is the lens through which I intend to approach all my future design projects.
+
+
+## Skills Gained
+This project helped me to develop practical experience in systems engineering and medical device R&D across requirements, mechanical design, verification, validation, risk analysis, and experimental data analysis.
+
+<div class="project-skills-grid">
+
+  <div class="project-skill">
+    <h3>Requirements & Systems Engineering</h3>
+    <p>
+      Requirements analysis · Functional decomposition · System architecture · Design constraints
+    </p>
+  </div>
+
+  <div class="project-skill">
+    <h3>Design & Prototyping</h3>
+    <p>
+      CAD and 3D modeling · Design iteration · Interface design · 3D printing · Prototyping
+    </p>
+  </div>
+
+  <div class="project-skill">
+    <h3>Verification & Validation</h3>
+    <p>
+      Requirements verification · Inspection · Functional testing · Simulation · Validation against reference systems
+    </p>
+  </div>
+
+  <div class="project-skill">
+    <h3>Risk & Engineering Analysis</h3>
+    <p>
+      FMEA  · Structural analysis · Safety factor assessment · Design risk reduction
+    </p>
+  </div>
+
+  <div class="project-skill">
+    <h3>Experimental & Data Analysis</h3>
+    <p>
+      Experimental design · Video analysis · Gait event extraction · Statistical analysis · Bland-Altman analysis
+    </p>
+  </div>
+
+  <div class="project-skill">
+    <h3>Technical Documentation</h3>
+    <p>
+      Engineering documentation · Experimental methodology · Technical reporting · Results interpretation
+    </p>
+  </div>
+
+</div>
+

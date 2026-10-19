@@ -6,11 +6,9 @@ module.exports = {
       numberOfRuns: 1,
       startServerCommand: 'pnpm astro preview',
       url: [
-        `http://localhost:4321${base}/en/`,
-        `http://localhost:4321${base}/en/resume/`,
-        `http://localhost:4321${base}/en/work/`,
-        `http://localhost:4321${base}/en/faq/`,
-        `http://localhost:4321${base}/en/thought/`,
+        `http://localhost:4321${base}/`,
+        `http://localhost:4321${base}/projects/`,
+        `http://localhost:4321${base}/experience/`,
       ].map((url) => url.replace(/([^:])\/\//g, '$1/')),
     },
     upload: {

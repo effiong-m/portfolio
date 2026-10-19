@@ -1,2 +1,25 @@
 ---
+import { getEntry } from 'astro:content';
+
+import Base from '@/layouts/Base.astro';
+import Banner from '@/components/Banner.astro';
+
+const config = await getEntry('config', 'site');
+const { name } = config!.data.website;
 ---
+
+<Base title="Home">
+  <main class="min-h-screen">
+    <Banner>
+      <div class="px-4">
+        <h1 class="text-3xl md:text-6xl font-semibold">
+          {name}
+        </h1>
+
+        <p class="mt-4 text-lg opacity-70">
+          Portfolio
+        </p>
+      </div>
+    </Banner>
+  </main>
+</Base>

@@ -1,0 +1,457 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '@/layouts/Base.astro';
+import { resolveAsset } from '@/utils/paths.ts';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('project');
+
+  return projects
+    .filter((project) => !project.data.draft)
+
+    .map((project) => ({
+      params: {
+        slug: project.id
+          .split('/')
+          .pop()
+          ?.replace(/\.mdx?$/, ''),
+      },
+      props: {
+        project,
+      },
+    }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+---
+
+<Base title={project.data.title}>
+  <main class="project-page mx-auto max-w-6xl px-4 pt-20 pb-12 md:pt-24 md:pb-20">
+
+
+    <!-- Project Header -->
+    <header class="mb-8">
+      <div class="flex flex-wrap gap-1 mb-5">
+        {
+          project.data.categories.map((category) => (
+            <span class="border-2 border-primary-50 rounded-full px-5 py-2 text-sm">
+              {category}
+            </span>
+          ))
+        }
+      </div>
+
+      <h1 class="text-xl md:text-2xl font-bold tracking-tight mb-2">
+        {project.data.title}
+      </h1>
+
+      <p class="text-lg md:text-base font-serif leading-relaxed opacity-80">
+        {project.data.description}
+      </p>
+
+      <div class="project-meta">
+          {project.data.projectType && (
+          <span>{project.data.projectType}</span>
+        )}
+
+        {project.data.course && (
+          <span>{project.data.course}</span>
+        )}
+
+        {project.data.affiliation && (
+          <span>{project.data.affiliation}</span>
+        )}
+      </div>
+
+      <div class="flex flex-wrap gap-2 mt-2">
+        {
+          project.data.tech.map((tech) => (
+            <span class="text-xs opacity-60">
+              {tech}
+            </span>
+          ))
+        }
+      </div>
+    </header>
+
+    <!-- Case Study Status -->
+    {
+      project.data.caseStudyStatus === 'in-progress' && (
+        <aside
+          class="case-study-status"
+          aria-label="Project details status"
+          style={`--status-color: ${project.data.themeColor};`}
+        >
+          <span class="case-study-status-label">
+            Documentation in progress
+          </span>
+
+          <p>
+            Oops! You caught me. I'm still working on the documentation of this project
+          </p>
+        </aside>
+      )
+    }
+
+    <!-- Hero Image -->
+    {
+  project.data.thumbnail?.src && (
+    <figure class="mb-8 flex justify-center">
+  <img
+    src={resolveAsset(project.data.thumbnail.src)}
+    alt={project.data.thumbnail.alt}
+    class="w-auto max-w-[650px] max-h-[350px] object-contain rounded-lg"
+  />
+</figure>
+  )
+}
+
+    <!-- Project Details -->
+    <article
+      class="project-content max-w-6xl"
+    >
+      <Content />
+    </article>
+
+    <!-- Back to Projects -->
+    <div class="mt-20 pt-8 border-t-2 border-primary-50">
+      <a
+        href={resolveAsset('/projects/')}
+        class="inline-flex items-center gap-2 font-medium hover:underline"
+      >
+        Back to all projects
+      </a>
+    </div>
+
+  </main>
+</Base>
+
+<style>
+
+  :global(html) {
+  scroll-behavior: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html) {
+    scroll-behavior: auto;
+    }
+  }
+  /* 
+     Overall project page scale
+  */
+
+  .project-page {
+    zoom: 1;
+  }
+
+  .project-content :global(.user-need) {
+  border-left: 4px solid currentColor;
+  padding: 1rem 0 1rem 1.5rem;
+  margin: 1rem 0 1rem;
+  }
+
+  .project-content :global(.user-need-label) {
+    display: block;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    opacity: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .project-content :global(.user-need p) {
+    margin: 0;
+  }
+
+  .project-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+    font-size: 0.9rem;
+    opacity: 0.7;
+  }
+
+  .case-study-status {
+  margin: 1.5rem 0 2.5rem;
+  padding: 1rem 1.25rem;
+
+  border: 1px;
+  border-radius: 0.5rem;
+
+  background: color-mix(
+      in srgb,
+      var(--status-color) 12%,
+      transparent
+    );
+}
+
+.case-study-status-label {
+  display: block;
+  margin-bottom: 0.25rem;
+
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.case-study-status p {
+  margin: 0;
+
+  font-family: serif;
+  font-size: 0.95rem;
+  line-height: 1.5;
+
+  color: var(--color-text-muted);
+}
+
+  /* 
+     Project typography
+ */
+
+  .project-content :global(h2) {
+    font-size: 1.5rem;
+    line-height: 1.2;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .project-content :global(h3) {
+    font-size: 1.4rem;
+    line-height: 1.3;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .project-content :global(p) {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    margin-bottom: 0.5rem;
+    max-width: 100%;
+  }
+
+  .project-content :global(ul) {
+    list-style: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .project-content :global(li) {
+    margin-bottom: 0.5rem;
+    font-size: 1.05rem;
+  }
+
+  .project-content :global(strong) {
+    font-weight: 600;
+  }
+
+
+  /* 
+     Project figures
+*/
+
+  .project-content {
+    counter-reset: project-figure project-table;
+  }
+
+  .project-content :global(img) {
+    display: block;
+    width: auto;
+    max-width: 620px;
+    max-height: 420px;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .project-content :global(.project-figure) {
+    margin: 3rem auto 4rem;
+    text-align: center;
+  }
+
+  .project-content :global(.project-figure img) {
+    max-width: 620px;
+    max-height: 420px;
+    margin: 0 auto 1rem;
+    border-radius: 0.5rem;
+  }
+
+  .project-content :global(.project-figure figcaption) {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    opacity: 0.6;
+  }
+
+  .project-content :global(.project-figure) {
+    counter-increment: project-figure;
+  }
+
+  .project-content :global(.project-figure figcaption)::before {
+    content: "Figure " counter(project-figure) ". ";
+    font-weight: 600;
+    opacity: 1;
+  }
+
+
+  /* 
+     CAD iteration grid
+  */
+
+  .project-content :global(.project-cad-grid) {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin: 2.5rem 0 4rem;
+    padding: 1.5rem;
+    border: 2px solid currentColor;
+    border-radius: 0.5rem;
+  }
+
+  .project-content :global(.project-cad-item:last-child:nth-child(3n + 1)) {
+    grid-column: 2;
+  } 
+
+  .project-content :global(.project-cad-item) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .project-content :global(.project-cad-item img) {
+    width: 100%;
+    height: 200px;
+    max-width: none;
+    max-height: none;
+    object-fit: contain;
+    margin: 0;
+    border-radius: 0.5rem;
+  }
+
+  .project-content :global(.project-cad-item p) {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    text-align: center;
+    opacity: 0.65;
+  }
+
+
+  /* 
+     Tables
+  */
+
+  .project-content :global(table) {
+    width: 100%;
+    max-width: 750px;
+    margin: 3rem auto 1rem;
+    border: 1px solid currentColor;
+    border-collapse: collapse;
+    counter-increment: project-table;
+  }
+
+  .project-content :global(th){
+    border-bottom: 1px solid currentColor;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  .project-content :global(td) {
+    border-bottom: 1px solid currentColor;
+    padding: 0.75rem;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .project-content :global(th) {
+    font-weight: 700;
+  }
+
+  .project-content :global(table caption) {
+    caption-side: bottom;
+    padding-top: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    opacity: 0.6;
+  }
+
+  .project-content :global(table caption)::before {
+    content: "Table " counter(project-table) ". ";
+    font-weight: 600;
+    opacity: 1;
+  }
+
+
+  /* 
+     Skills gained
+  */
+
+  .project-content :global(.project-skills-grid) {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin: 2.5rem 0 4rem;
+  }
+
+  .project-content :global(.project-skill) {
+    padding: 1.5rem;
+    border: 2px solid currentColor;
+    border-radius: 0.5rem;
+  }
+
+  .project-content :global(.project-skill h3) {
+    margin: 0 0 0.75rem;
+    font-size: 1.1rem;
+    line-height: 1.3;
+    font-weight: 600;
+  }
+
+  .project-content :global(.project-skill p) {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    opacity: 0.7;
+  }
+
+  .project-content :global(h2),
+  .project-content :global(.project-figure),
+  .project-content :global(table) {
+    scroll-margin-top: 1.25rem;
+  }
+
+  /* 
+     Responsive behavior
+  */
+
+  @media (max-width: 900px) {
+    .project-content :global(.project-skills-grid) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 768px) {
+    .project-page {
+      zoom: 1;
+    }
+
+    .project-content :global(.project-cad-grid) {
+      grid-template-columns: 1fr;
+    }
+
+    .project-content :global(.project-skills-grid) {
+      grid-template-columns: 1fr;
+    }
+
+    .project-content :global(.project-figure img) {
+      max-width: 100%;
+      max-height: 350px;
+    }
+  }
+</style>

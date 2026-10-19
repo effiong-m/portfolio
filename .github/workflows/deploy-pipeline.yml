@@ -2,6 +2,8 @@ name: Deploy Pipeline
 
 on:
   push:
+    branches:
+      - main
   workflow_dispatch:
   repository_dispatch:
     types: [content-updated]
@@ -43,34 +45,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ! To seperate code & content, you can overwrite local content from below
-      # ! Add GitHub secrets named: CHECKOUT_GITHUB_CONTENT_PAT
-      # ! - Permission: Target content repo's Content READ and Write
-      # - name: Checkout external content
-      #   uses: actions/checkout@v4
-      #   with:
-      #     repository: joe-doe/repo
-      #     ref: main
-      #     path: src/content/
-      #     token: ${{ secrets.CHECKOUT_GITHUB_CONTENT_PAT }}
-      #     lfs: true
-
       - name: Environment Setup
         uses: ./.github/actions/setup
-
-      - name: Create LFS file list
-        run: git lfs ls-files --long | cut -d ' ' -f1 | sort > .lfs-assets-id
-
-      - name: LFS Cache
-        uses: actions/cache@v3
-        with:
-          path: .git/lfs/objects
-          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
-          restore-keys: |
-            ${{ runner.os }}-lfs-
-
-      - name: Git LFS Pull
-        run: git lfs pull
 
       - name: Build
         run: pnpm build
@@ -104,34 +80,6 @@ jobs:
           LHCI_TOKEN: ${{ secrets.LHCI_TOKEN }}
           PUBLIC_LHCI_BASE_URL: ${{ vars.PUBLIC_LHCI_BASE_URL }}
         run: pnpm dlx @lhci/cli@0.14.x autorun
-
-  # deploy:
-  #   needs: [build]
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: read
-  #     deployments: write
-
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-
-  #     - name: Environment Setup
-  #       uses: ./.github/actions/setup
-
-  #     - name: Download build artifacts
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: dist
-  #         path: dist
-        # !https://developers.cloudflare.com/fundamentals/api/get-started/create-token/
-  #     - name: Publish
-  #       uses: cloudflare/wrangler-action@v3.14.1
-  #       with:
-  #         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-  #         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-  #         gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-  #         command: pages deploy dist --branch=${{ github.ref_name }} --project-name=your-project-name
 
   deploy-github-pages:
     needs: [build]

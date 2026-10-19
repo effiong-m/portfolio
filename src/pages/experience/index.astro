@@ -1,0 +1,447 @@
+---
+import { getCollection } from 'astro:content';
+
+import Base from '@/layouts/Base.astro';
+import Banner from '@/components/Banner.astro';
+
+import ExperienceEntry from '@/components/experience/ExperienceEntry.astro';
+
+
+const experiences = await getCollection(
+  'experience',
+  (experience) => !experience.data.draft
+);
+
+
+const sortedExperiences = experiences.sort((a, b) => {
+
+  const aDate =
+    a.data.endDate ?? a.data.startDate;
+
+  const bDate =
+    b.data.endDate ?? b.data.startDate;
+
+  return bDate.getTime() - aDate.getTime();
+});
+
+
+const experienceCategories = [
+  'Internships',
+  'Volunteering',
+  'Academic Community Involvement',
+];
+---
+
+<Base title="Experience">
+
+  <div class="p-4">
+
+    <main class="min-h-screen">
+
+      <!-- Full-width heading -->
+      <Banner>
+        <h1 class="text-2xl md:text-4xl lg:text-4xl font-medium">
+          Experience
+        </h1>
+      </Banner>
+
+
+      <section class="container mx-auto">
+
+        <div class="experience-layout">
+
+
+          <!-- =====================================
+               FILTER SIDEBAR
+          ====================================== -->
+
+          <aside class="experience-sidebar">
+
+            <div class="experience-filter-panel">
+
+              <p class="filter-heading">
+                Filter experience
+              </p>
+
+
+              <ul
+                class="experience-filter-list"
+                data-experience-filter
+              >
+
+                <li>
+                  <button
+                    type="button"
+                    data-category="all"
+                    class="experience-filter-button active"
+                  >
+                    All
+                  </button>
+                </li>
+
+
+                {
+                  experienceCategories.map((category) => (
+                    <li>
+                      <button
+                        type="button"
+                        data-category={category}
+                        class="experience-filter-button"
+                      >
+                        {category}
+                      </button>
+                    </li>
+                  ))
+                }
+
+              </ul>
+
+            </div>
+
+          </aside>
+
+
+          <!-- =====================================
+               EXPERIENCE ENTRIES
+          ====================================== -->
+
+          <div
+            class="experience-column"
+            data-experiences
+          >
+
+            {
+              sortedExperiences.map((experience) => (
+                <div
+                  data-experience
+                  data-category={experience.data.category}
+                >
+
+                  <ExperienceEntry
+                    experience={experience}
+                    locale="en"
+                  />
+
+                </div>
+              ))
+            }
+
+
+            <p
+              data-no-results
+              class="hidden text-center py-12 font-serif opacity-70"
+            >
+              No experiences match this filter.
+            </p>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+</Base>
+
+
+<style is:inline>
+
+  /* --------------------------------
+     Main layout
+  -------------------------------- */
+
+  .experience-layout {
+    display: grid;
+
+    grid-template-columns:
+      13rem
+      minmax(0, 56rem);
+
+    gap: 3rem;
+
+    justify-content: center;
+    align-items: start;
+  }
+
+
+  /* --------------------------------
+     Sidebar
+  -------------------------------- */
+
+  .experience-sidebar {
+    position: sticky;
+
+    top: 6rem;
+
+    align-self: start;
+
+    height: fit-content;
+
+    padding-right: 1.5rem;
+
+    border-right: 1px solid
+      color-mix(
+        in srgb,
+        currentColor 22%,
+        transparent
+      );
+  }
+
+
+  .filter-heading {
+    margin: 0 0 1rem;
+
+    color: var(--color-text-subtle);
+
+    font-size: 0.72rem;
+    font-weight: 600;
+
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+
+  .experience-filter-button {
+    width: 100%;
+
+    padding: 0.6rem 0.7rem;
+
+    border: 1px solid transparent;
+    border-radius: 0.45rem;
+
+    color: var(--color-text-muted);
+    background: transparent;
+
+    text-align: left;
+
+    font-size: 0.86rem;
+
+    cursor: pointer;
+
+    transition:
+      color var(--transition-fast),
+      background-color var(--transition-fast),
+      border-color var(--transition-fast);
+  }
+
+
+  .experience-filter-button:hover {
+    color: var(--color-text);
+
+    background:
+      var(--color-interface-accent-soft);
+  }
+
+
+  .experience-filter-button.active {
+    color: var(--color-background);
+
+    background: var(--color-text);
+
+    border-color: var(--color-text);
+  }
+
+
+.experience-filter-button.active:hover {
+  color: var(--color-background);
+
+  background: var(--color-text);
+
+  border-color: var(--color-text);
+}
+
+
+  /* --------------------------------
+     Experience column
+  -------------------------------- */
+
+  .experience-column {
+    width: 100%;
+
+    max-width: 56rem;
+
+    min-width: 0;
+  }
+
+
+  /* --------------------------------
+     Tablet
+  -------------------------------- */
+
+  @media (max-width: 900px) {
+
+    .experience-layout {
+      grid-template-columns: 1fr;
+
+      gap: 2.5rem;
+    }
+
+
+    .experience-sidebar {
+      position: sticky;
+
+      top: 6rem;
+
+      align-self: start;
+
+      height: fit-content;
+
+      padding-right: 1.5rem;
+
+      border-right: 1px solid var(--color-border-soft);
+    }
+
+
+    .experience-filter-list {
+      flex-direction: row;
+      flex-wrap: wrap;
+
+      gap: 0.5rem;
+    }
+
+
+    .experience-filter-button {
+      width: auto;
+
+      border: 1px solid var(--color-border);
+
+      border-radius: 999px;
+    }
+
+
+    .experience-filter-button.active {
+      border-color: var(--color-text);
+    }
+
+
+    .experience-column {
+      margin-inline: auto;
+    }
+
+  }
+
+</style>
+
+
+<script is:inline>
+
+  document.addEventListener(
+    "astro:page-load",
+    () => {
+
+      const filterElement =
+        document.querySelector(
+          "[data-experience-filter]"
+        );
+
+      const experiencesElement =
+        document.querySelector(
+          "[data-experiences]"
+        );
+
+      const noResultsElement =
+        document.querySelector(
+          "[data-no-results]"
+        );
+
+
+      let activeCategory = "all";
+
+
+      function updateExperiences() {
+
+        let visibleCount = 0;
+
+
+        filterElement
+          ?.querySelectorAll("button")
+          .forEach((button) => {
+
+            button.classList.toggle(
+              "active",
+              button.dataset.category === activeCategory
+            );
+
+          });
+
+
+        experiencesElement
+          ?.querySelectorAll("[data-experience]")
+          .forEach((experience) => {
+
+            const category =
+              experience.dataset.category;
+
+
+            const shouldShow =
+              activeCategory === "all" ||
+              category === activeCategory;
+
+
+            experience.classList.toggle(
+              "hidden",
+              !shouldShow
+            );
+
+
+            if (shouldShow) {
+              visibleCount++;
+            }
+
+          });
+
+
+        noResultsElement?.classList.toggle(
+          "hidden",
+          visibleCount !== 0
+        );
+
+      }
+
+
+      filterElement?.addEventListener(
+        "click",
+        (event) => {
+
+          const target = event.target;
+
+          if (!(target instanceof HTMLElement)) {
+            return;
+          }
+
+
+          const button =
+            target.closest("button");
+
+
+          if (!button) {
+            return;
+          }
+
+
+          const category =
+            button.dataset.category;
+
+
+          if (!category) {
+            return;
+          }
+
+
+          activeCategory = category;
+
+          updateExperiences();
+
+        }
+      );
+
+
+      updateExperiences();
+
+    }
+  );
+
+</script>

@@ -1,63 +1,97 @@
 ---
 import { getEntry } from 'astro:content';
-import { defaultLocale, useTranslations, getLocale } from '@/i18n/i18n.ts';
-import { getRelativeLocaleUrl } from 'astro:i18n';
-import DOMPurify from 'isomorphic-dompurify';
 
 const config = await getEntry('config', 'site');
 const { website } = config!.data;
-const t = useTranslations(getLocale(Astro.currentLocale));
 ---
 
-<footer class="print:hidden container mx-auto px-4 py-8">
-  <div class="flex flex-wrap justify-between mb-8">
-    <h2 class="text-3xl md:text-5xl mb-8">
-      <span class="font-bold">{t('Footer-1')}</span>
-      <span class="text-primary-700">
-        <br />
-        <span set:html={DOMPurify.sanitize(t('Footer-Contact', { emailBtn: `<button class="cursor-pointer highlight relative" data-mail-btn="${  website.email  }">Email<span data-mail-popover class="absolute left-1/2 -translate-x-1/2 top-full mt-1 text-base tracking-wide whitespace-nowrap hidden bg-primary-100 text-primary-800 px-2 py-1 rounded">${  t('Footer-7')  }</span></button>`, resumeLink: `<a class="highlight" href="${  getRelativeLocaleUrl(Astro.currentLocale || defaultLocale, '/resume')  }">${  t('Footer-Resume')  }</a>` }))} />
-      </span>
-    </h2>
+<footer class="portfolio-footer print:hidden">
+  <div class="footer-inner">
 
-    <div>
-      <h3 class="text-lg font-medium mb-4 sr-only lg:not-sr-only">{t('Footer-6')}</h3>
-      <ul>
-        {
-          website.socials.map((social) => (
-            <li>
-              <a
-                class="hover:bg-primary-100 rounded-full transition-colors p-4 ml-0 lg:-ml-4 inline-block"
-                href={social.url}
-                target="_blank"
-              >
-                {social.name}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </div>
-  <div class="flex justify-between">
-    <p class="opacity-80" set:html={DOMPurify.sanitize(website.copyright)} />
-    <span>{ website.emojiStatus }</span>
+    <p class="footer-contact">
+      Get in touch:{' '}
+      <a href={`mailto:${ website.email}`}>
+        { website.email }
+      </a>
+    </p>
+
+    {
+      website.socials.length > 0 && (
+        <div class="footer-links">
+          {website.socials.map((social) => (
+            <a
+              href={social.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {social.name}
+            </a>
+          ))}
+        </div>
+      )
+    }
+
+    <p class="footer-copyright">
+      © {new Date().getFullYear()} {website.name}
+    </p>
+
   </div>
 </footer>
 
-<script is:inline>
-  document.addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-mail-btn]');
-    if (!btn) return;
-    navigator.clipboard.writeText(btn.dataset.mailBtn);
+<style>
+  .portfolio-footer {
+    margin-top: 6rem;
+    padding: 2rem 1.5rem;
 
-    const popover = btn.querySelector('[data-mail-popover]');
-    /* eslint-disable no-param-reassign */
-    btn.disabled = true;
-    popover.classList.remove('hidden');
-    setTimeout(() => {
-      popover.classList.add('hidden');
-      btn.disabled = false;
-    }, 1000);
-    /* eslint-enable no-param-reassign */
-  });
-</script>
+    border-top: 1px solid var(--color-border-soft);
+
+    color: var(--color-text-muted);
+  }
+
+  .footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 2rem;
+
+    max-width: 72rem;
+    margin-inline: auto;
+
+    font-size: 0.85rem;
+  }
+
+  .footer-contact {
+    margin: 0;
+  }
+
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .portfolio-footer a {
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .portfolio-footer a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .footer-copyright {
+    margin: 0 0 0 auto;
+  }
+
+  @media (max-width: 640px) {
+    .footer-inner {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .footer-copyright {
+      margin-left: 0;
+    }
+  }
+</style>

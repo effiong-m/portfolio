@@ -1,22 +1,21 @@
 ---
 import Base from '@/layouts/Base.astro';
-
-import { getRelativeLocaleUrl } from 'astro:i18n';
-import { useTranslations, languages, defaultLocale, getLocale } from '@/i18n/i18n.ts';
-
-const t = useTranslations(getLocale(Astro.currentLocale));
-
-export function getStaticPaths() {
-  return Object.keys(languages).map((language) => ({
-    params: { language },
-  }));
-}
+import { resolveAsset } from '@/utils/paths.ts';
 ---
 
-<Base title={t('404-1')}>
+<Base title="Page not found">
   <main class="text-center min-h-screen flex items-center justify-center flex-col">
     <h1 class="text-8xl font-black">404</h1>
-    <p class="text-lg mb-8">{t('404-1')}</p>
-    <a class="underline" href={getRelativeLocaleUrl(Astro.currentLocale || defaultLocale, '/')}>{t('404-2')}</a>
+
+    <p class="text-lg mb-8">
+      Page not found
+    </p>
+
+    <a
+      class="underline"
+      href={resolveAsset('/')}
+    >
+      Back to home
+    </a>
   </main>
 </Base>

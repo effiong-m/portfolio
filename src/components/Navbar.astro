@@ -1,93 +1,78 @@
 ---
-import LanguagePicker from '@/components/LanguagePicker.astro'
-import { getRelativeLocaleUrl } from 'astro:i18n';
-import { defaultLocale, useTranslations,prefixDefaultLocale, getLocale } from '@/i18n/i18n.ts';
 import { resolveAsset } from '@/utils/paths.ts';
-import { getCollection } from 'astro:content';
-
-const t = useTranslations(getLocale(Astro.currentLocale));
-
-const thoughts = await getCollection('thought');
-const currentLocale = getLocale(Astro.currentLocale);
-const hasThoughts = thoughts.some(thought => thought.id.startsWith(currentLocale));
 
 interface NavLink {
   url: string;
   name: string;
   isHiddenOnMobile?: boolean;
-  isHidden?: boolean; // Hide nav item through CSS to avoid js active item not found
+  isHidden?: boolean;
 }
 
 const links: NavLink[] = [
-  { url: '/', name: t('Navbar-1'), isHidden: true },
-  { url: '/resume', name: t('Navbar-2') },
-  { url: '/work', name: t('Navbar-3') },
-  { url: '/faq', name: t('Navbar-4') },
-  { url: '/thought', name: t('Navbar-5'), isHidden: !hasThoughts },
+  { url: '/', name: 'Home', isHidden: true },
+  { url: '/projects', name: 'Projects' },
+  { url: '/experience', name: 'Experience', isHidden: true },
 ];
 
 function isActiveNavItem(navItem: string) {
   const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   const { pathname } = new URL(Astro.url);
-  const pathWithoutBase = base && pathname.startsWith(base) ? pathname.slice(base.length) : pathname;
-  const currentPath = pathWithoutBase.replace(/^\/|\/$/g, '');
-  const localePrefix = prefixDefaultLocale ? Astro.currentLocale : '';
-  const isHomepage = navItem === '/'
-  const isDefaultLocaleActive = currentPath === localePrefix
-  const isOtherLocaleActive = currentPath === Astro.currentLocale
 
-  if (isHomepage) {
-    return isOtherLocaleActive || isDefaultLocaleActive;
+  const pathWithoutBase =
+    base && pathname.startsWith(base)
+      ? pathname.slice(base.length)
+      : pathname;
+
+  const currentPath = pathWithoutBase.replace(/^\/|\/$/g, '');
+  const navPath = navItem.replace(/^\/|\/$/g, '');
+
+  if (navItem === '/') {
+    return currentPath === '';
   }
 
-  return currentPath.includes(navItem.replace(/^\/|\/$/g, ''));
+  return (
+    currentPath === navPath ||
+    currentPath.startsWith(`${navPath}/`)
+  );
 }
 ---
 
-<nav style="min-height: var(--navbar-height)" class="px-4 py-2 flex gap-2 flex-col md:flex-row  justify-center z-50 relative md:justify-between items-center container mx-auto print:hidden">
-  <a
-    class="hover:bg-primary-100 p-4 -m-4 rounded-full aspect-square flex justify-center items-center transition-colors"
-    href={getRelativeLocaleUrl(Astro.currentLocale || defaultLocale, '/')}
-  >
-      <img
-      width="40"
-      height="40"
-      src={resolveAsset('/assets/global/logo.svg')}
-      alt="Logo"
-    />
-  </a>
-
-  <div class="flex flex-wrap gap-2 items-center justify-center">
+<nav
+  style="min-height: var(--navbar-height)"
+  class="portfolio-nav relative z-50 w-full px-6 md:px-10 lg:px-14 py-3 flex items-center print:hidden"
+>
+  <div class="navbar-inner">
     <div class="relative" data-nav-container>
       <div
         id="nav-indicator"
-        class="nav-indicator absolute left-0 top-0 z-0 rounded-full bg-primary-900 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] opacity-0 pointer-events-none"
+        class="nav-indicator absolute left-0 top-0 z-0 rounded-full opacity-0 pointer-events-none"
         transition:persist
       ></div>
-      <ul class="flex flex-wrap gap-2 items-center">
+
+      <ul class="nav-links">
         {
           links.map(({ url, name, isHiddenOnMobile = false, isHidden = false }) => {
             const active = isActiveNavItem(url);
 
-            const hiddenClass = 'hidden'
-            const hiddenOnMobileClass = `${hiddenClass} md:inline-block`
+            const hiddenClass = 'hidden';
+            const hiddenOnMobileClass = `${hiddenClass} md:inline-block`;
 
             let finalHiddenClass = '';
+
             if (isHidden) {
               finalHiddenClass = hiddenClass;
             } else if (isHiddenOnMobile) {
               finalHiddenClass = hiddenOnMobileClass;
-            } 
+            }
 
             return (
               <li class={finalHiddenClass}>
                 <a
                   data-nav-link
                   data-active={active ? 'true' : 'false'}
-                  class={`md:px-8 px-4 py-4 rounded-full transition-colors whitespace-nowrap relative z-10 block ${
-                    active ? 'text-primary-50' : 'text-primary-900 hover:bg-primary-100'
-                  }`}
-                  href={getRelativeLocaleUrl(Astro.currentLocale || defaultLocale, url)}
+                  class={`nav-link ${active ? 'nav-link-active' : ''}`}
+                  href={resolveAsset(url)}
+                  )}
                 >
                   {name}
                 </a>
@@ -95,64 +80,255 @@ function isActiveNavItem(navItem: string) {
             );
           })
         }
-        <li>
-          <LanguagePicker/>
-        </li>
       </ul>
     </div>
+
+    <button
+      data-theme-toggle
+      class="theme-toggle"
+      type="button"
+      aria-label="Switch to light theme"
+      title="Switch color theme"
+    >
+      <svg
+        data-theme-icon="sun"
+        class="theme-icon"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41" />
+      </svg>
+
+      <svg
+        data-theme-icon="moon"
+        class="theme-icon"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        style = "display: none;"
+      >
+        <path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5A8.5 8.5 0 1 0 20.5 14.2Z" />
+      </svg>
+    </button>
   </div>
 </nav>
 
 <script is:inline>
-  (function initNavbar() {
-    function init() {
+  (() => {
+    const THEME_KEY = 'portfolio-theme';
+
+    function readSavedTheme() {
+      try {
+        return localStorage.getItem(THEME_KEY) === 'light' ? 'light' : 'dark';
+      } catch {
+        return 'dark';
+      }
+    }
+
+    function setTheme(theme) {
+      document.documentElement.dataset.theme = theme;
+
+      try {
+        localStorage.setItem(THEME_KEY, theme);
+      } catch {
+        // Keep the theme working for this page even if storage is unavailable.
+      }
+
+      syncThemeToggle();
+    }
+
+    function syncThemeToggle() {
+      const button = document.querySelector('[data-theme-toggle]');
+      if (!(button instanceof HTMLButtonElement)) return;
+
+      const theme =
+        document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+
+      const sun = button.querySelector('[data-theme-icon="sun"]');
+      const moon = button.querySelector('[data-theme-icon="moon"]');
+
+      if (sun instanceof SVGElement) {
+        sun.style.display = theme === 'dark' ? '' : 'none';
+    }
+
+    if (moon instanceof SVGElement) {
+      moon.style.display = theme === 'light' ? '' : 'none';
+    }
+
+      button.setAttribute(
+        'aria-label',
+        theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'
+      );
+    }
+
+    function updateNavIndicator() {
       const container = document.querySelector('[data-nav-container]');
-      if (!container) return;
+      if (!(container instanceof HTMLElement)) return;
 
       const indicator = container.querySelector('#nav-indicator');
-      const activeLink = container.querySelector('[data-nav-link][data-active="true"]');
+      const activeLink = container.querySelector(
+        '[data-nav-link][data-active="true"]'
+      );
 
-      function updateIndicator(el) {
-        if (!indicator || !el) return;
-        indicator.style.width = `${el.offsetWidth}px`;
-        indicator.style.height = `${el.offsetHeight}px`;
-        indicator.style.transform = `translate(${el.offsetLeft}px, ${el.offsetTop}px)`;
-        indicator.style.opacity = '1';
+      if (!(indicator instanceof HTMLElement) || !(activeLink instanceof HTMLElement)) {
+        return;
       }
 
-      if (activeLink) {
-        if (!window.navInitialized) {
-          // First load of the site: snap to position
-          indicator.style.transition = 'none';
-          updateIndicator(activeLink);
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              if (indicator) indicator.style.transition = '';
-            });
-          });
-          window.navInitialized = true;
-        } else {
-          // Subsequent loads (persisted): slide from old position
-          updateIndicator(activeLink);
-        }
+      indicator.style.width = `${activeLink.offsetWidth}px`;
+      indicator.style.height = `${activeLink.offsetHeight}px`;
+      indicator.style.transform = `translate(${activeLink.offsetLeft}px, ${activeLink.offsetTop}px)`;
+      indicator.style.opacity = '1';
+    }
+
+    function initNavbar() {
+      if (!document.documentElement.dataset.theme) {
+        document.documentElement.dataset.theme = readSavedTheme();
       }
 
-      window.addEventListener('resize', () => {
-        const currentActive = container.querySelector('[data-nav-link][data-active="true"]');
-        if (currentActive) updateIndicator(currentActive);
+      syncThemeToggle();
+
+      requestAnimationFrame(() => {
+        updateNavIndicator();
       });
     }
 
-    if (!window.navListenerAdded) {
-      window.navListenerAdded = true;
-      document.addEventListener('astro:page-load', init);
+    if (!window.__portfolioNavbarListenersAdded) {
+      window.__portfolioNavbarListenersAdded = true;
+
+      document.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+
+        const button = target.closest('[data-theme-toggle]');
+        if (!(button instanceof HTMLButtonElement)) return;
+
+        const currentTheme =
+          document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+
+        setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+      });
+
+      window.addEventListener('resize', updateNavIndicator);
+      document.addEventListener('astro:page-load', initNavbar);
     }
 
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
+      document.addEventListener('DOMContentLoaded', initNavbar, { once: true });
     } else {
-      init();
+      initNavbar();
     }
   })();
 </script>
 
+<style>
+  .navbar-inner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: auto;
+  }
+
+  .nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nav-indicator {
+    background: var(--color-text);
+    transition:
+      width 300ms cubic-bezier(0.4, 0, 0.2, 1),
+      height 300ms cubic-bezier(0.4, 0, 0.2, 1),
+      transform 300ms cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 160ms ease;
+  }
+
+  .nav-link {
+    position: relative;
+    z-index: 10;
+    display: block;
+    padding: 0.9rem 1.5rem;
+    border-radius: 999px;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    transition:
+      color var(--transition-fast),
+      background-color var(--transition-fast);
+  }
+
+  .nav-link:hover {
+    color: var(--color-text);
+    background: var(--color-interface-accent-soft);
+  }
+
+  .nav-link-active {
+    color: var(--color-background);
+  }
+
+  .theme-toggle {
+    position: relative;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.9rem;
+    height: 2.9rem;
+    flex-shrink: 0;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    color: var(--color-text-muted);
+    background: transparent;
+    cursor: pointer;
+    transition:
+      color var(--transition-fast),
+      background-color var(--transition-fast),
+      border-color var(--transition-fast);
+  }
+
+  .theme-toggle:hover {
+    color: var(--color-text);
+    border-color: var(--color-text-muted);
+    background: var(--color-interface-accent-soft);
+  }
+
+  .theme-icon {
+    width: 1.2rem;
+    height: 1.2rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  @media (max-width: 640px) {
+    .portfolio-nav {
+      padding-inline: 1rem;
+    }
+
+    .navbar-inner {
+      width: 100%;
+      justify-content: flex-end;
+      gap: 0.45rem;
+    }
+
+    .nav-links {
+      justify-content: flex-end;
+    }
+
+    .nav-link {
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .theme-toggle {
+      width: 2.6rem;
+      height: 2.6rem;
+    }
+  }
+</style>

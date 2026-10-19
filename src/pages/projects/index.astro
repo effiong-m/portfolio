@@ -1,0 +1,1196 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '@/layouts/Base.astro';
+import Banner from '@/components/Banner.astro';
+import { Icon } from 'astro-icon/components';
+
+import { resolveAsset } from '@/utils/paths.ts';
+import type { AllowedTechs } from '@/content.config';
+
+const publicProjects = await getCollection('project', (project) => {
+  return !project.data.draft;
+});
+
+const sortedProjects = publicProjects.sort(
+  (a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime()
+);
+
+const allProjectTechs = publicProjects
+  .reduce<AllowedTechs[]>((acc, curr) => {
+    const techs = curr.data?.tech || [];
+    const relatedTechs = curr.data?.relatedTechs || [];
+
+    return [...new Set([...acc, ...techs, ...relatedTechs])];
+  }, [])
+  .sort((a, b) => a.localeCompare(b));
+
+const projectCategories = [
+  {
+    id: 'AI/ML',
+    icon: 'material-symbols:auto-awesome-outline-rounded',
+  },
+  {
+    id: 'Biomedical',
+    icon: 'material-symbols:cardiology',
+  },
+  {
+    id: 'Electronics',
+    icon: 'material-symbols:memory-outline-rounded',
+  },
+  {
+    id: 'Data',
+    icon: 'material-symbols:analytics-outline-rounded',
+  },
+  {
+    id: 'Product Management/BI',
+    icon: 'material-symbols:insights',
+  },
+];
+
+---
+
+<Base title="Projects">
+  <div class="p-4">
+    <main class="min-h-screen">
+
+      <!-- Full width -->
+      <Banner>
+        <h1 class="text-2xl md:text-2xl lg:text-2xl font-medium">
+          Welcome!
+        </h1>
+        <p>Here are the various projects I have worked on! Use the filters at the side bar to select a category or a specific tool.</p>
+      </Banner>
+
+      <!-- Two columns -->
+      <section class="container mx-auto">
+
+        <!-- Accessible project count -->
+        <h2 class="sr-only">
+          {publicProjects.length} projects
+        </h2>
+
+        <div class="work-layout">
+
+          <!-- Left Filter Rail -->
+          <aside class="work-sidebar">
+            <div class="work-filter-panel">
+
+              <p class="work-filter-heading">
+                Filter projects
+              </p>
+
+              <!-- Category Filters -->
+              <ul
+                class="work-category-list"
+                data-category-filter
+                aria-label="Filter projects by category"
+              >
+                <li>
+                  <button
+                    data-category="all"
+                    class="work-category-button active"
+                    type="button"
+                  >
+                    <Icon
+                      class="pointer-events-none work-category-icon"
+                      size={22}
+                      name="material-symbols:person-play-outline-rounded"
+                    />
+                    <span>All</span>
+                  </button>
+                </li>
+
+                {
+                  projectCategories.map((category) => (
+                    <li>
+                      <button
+                        data-category={category.id}
+                        class="work-category-button"
+                        type="button"
+                      >
+                        <Icon
+                          class="pointer-events-none work-category-icon"
+                          size={22}
+                          name={category.icon}
+                        />
+                        <span>{category.id}</span>
+                      </button>
+                    </li>
+                  ))
+                }
+              </ul>
+
+              <!-- Technology Filter -->
+              <div
+                class="work-tech-filter"
+                data-tech-filter
+              >
+                <label
+                  for="technology-filter"
+                  class="work-tech-label"
+                >
+                  Technology / tool
+                </label>
+
+                <select
+                  id="technology-filter"
+                  class="work-tech-select"
+                >
+                  <option value="">All technologies</option>
+
+                  {
+                    allProjectTechs.map((tech) => (
+                      <option value={tech}>{tech}</option>
+                    ))
+                  }
+                </select>
+              </div>
+
+            </div>
+          </aside>
+
+          <!-- Project Column -->
+          <div class="work-project-column">
+
+            <ul data-works class="flex flex-col">
+
+              {
+                sortedProjects.map((project) => {
+                  const slug = project.id
+                    .split('/')
+                    .pop()
+                    ?.replace(/\.mdx?$/, '');
+
+                  const projectUrl = Astro.url.pathname.replace(
+                    /\/projects\/?$/,
+                    `/projects/${slug}`
+                  );
+
+                  const projectMeta = [
+                    project.data.projectType,
+                    project.data.course,
+                    project.data.affiliation,
+                  ].filter(Boolean);
+
+                  return (
+                    <li
+                      data-tech={[
+                        ...project.data.tech,
+                        ...(project.data.relatedTechs || []),
+                      ].join(',')}
+                      data-categories={project.data.categories.join(',')}
+                      class="project-entry"
+                      style={`--project-accent: ${project.data.themeColor};`}
+                    >
+
+                      <!-- Project Tags -->
+                      <div class="project-tags">
+                        {projectMeta.map((meta) => (
+                          <span>{meta}</span>
+                        ))}
+
+                        {project.data.hasContainerized && (
+                          <span class="project-tag-docker">
+                            <Icon size={15} name="simple-icons:docker" />
+                            Docker
+                          </span>
+                        )}
+                      </div>
+
+                      <!-- Project Categories -->
+                      <div class="project-categories">
+                        {project.data.categories.map((category) => (
+                          <span>{category}</span>
+                        ))}
+                      </div>
+
+                      <!-- Project Gallery -->
+                      {
+                        project.data.gallery &&
+                        project.data.gallery.length > 0 && (
+                          <div
+                            class:list={[
+                              'project-gallery',
+                              {
+                                'project-gallery-2': project.data.gallery.length === 2,
+                                'project-gallery-3': project.data.gallery.length === 3,
+                                'project-gallery-4': project.data.gallery.length >= 4,
+                              },
+                            ]}
+                          >
+                            {project.data.gallery.map((image) => (
+                              <figure class="project-gallery-item">
+                                <img
+                                  src={resolveAsset(image.src)}
+                                  alt={image.alt}
+                                  loading="lazy"
+                                />
+                              </figure>
+                            ))}
+                          </div>
+                        )
+                      }
+
+                      <!-- Project Title -->
+                      <div class="project-title-row">
+                        <h3 class="project-title">
+                          <a
+                            href={projectUrl}
+                            class="hover:underline"
+                          >
+                            {project.data.title}
+                          </a>
+
+                          <time class="project-year">
+                            {project.data.publishDate.getFullYear()}
+                          </time>
+                        </h3>
+                      </div>
+
+                      <!-- Project Resources -->
+                      {
+                        project.data.resources &&
+                        project.data.resources.length > 0 && (
+                          <ul class="project-links">
+                            {project.data.resources.map((resource) => (
+                              <li>
+                                <a
+                                  href={resource.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  {resource.label}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        )
+                      }
+
+                      <!-- What -->
+                      <section class="project-section">
+                        <h3>What?</h3>
+                        <p>{project.data.description}</p>
+                      </section>
+
+                      <!-- How -->
+                      {
+                        project.data.highlights &&
+                        project.data.highlights.length > 0 && (
+                          <section class="project-section">
+                            <h3>How?</h3>
+
+                            <ul>
+                              {project.data.highlights.map((highlight) => (
+                                <li>{highlight}</li>
+                              ))}
+                            </ul>
+                          </section>
+                        )
+                      }
+
+                      <!-- Results -->
+                      {
+                        project.data.results &&
+                        project.data.results.length > 0 && (
+                          <section class="project-section">
+                            <h3>Results?</h3>
+
+                            <ul>
+                              {project.data.results.map((result) => (
+                                <li>
+                                  {typeof result === 'string' ? (
+                                    result
+                                  ) : (
+                                    result.parts.map((part) =>
+                                    part.url ? (
+                                      <a
+                                        href={part.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="project-inline-link"
+                                      >
+                                        {part.text}
+                                      </a>
+                                    ) : (
+                                      part.text
+                                    )
+                                  )
+                                )}
+                              </li>
+                            ))}
+                            </ul>
+                          </section>
+                        )
+                      }
+
+                      <!-- Reflection -->
+                      {
+                        project.data.reflection && (
+                          <section class="project-section project-reflection">
+                            <h3>Reflection</h3>
+                            <p>{project.data.reflection}</p>
+                          </section>
+                        )
+                      }
+
+                      <!-- Skills & Tools -->
+                      {
+                        project.data.tech &&
+                        project.data.tech.length > 0 && (
+                          <div class="project-tech">
+                            <ul>
+                              {project.data.tech.map((tech) => (
+                                <li>{tech}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )
+                      }
+
+                      <!-- Full Project -->
+                      <div class="project-footer">
+                        <a
+                          href={projectUrl}
+                          class="project-case-study"
+                        >
+                          View project details
+                        </a>
+                      </div>
+
+                    </li>
+                  );
+                })
+              }
+
+            </ul>
+
+            <!-- No Results Message -->
+            <p
+              data-no-results
+              class="hidden text-center py-12 font-serif opacity-70"
+            >
+              No projects match the selected filters.
+            </p>
+
+          </div>
+
+        </div>
+
+      </section>
+    </main>
+  </div>
+</Base>
+
+
+<style is:inline>
+
+  /*
+     Work page layout
+  */
+
+  .work-layout {
+    display: grid;
+    grid-template-columns: 13rem minmax(0, 56rem);
+    gap: 2rem;
+    width: 100%;
+    justify-content: center;
+    align-items: start;
+  }
+
+  .work-sidebar {
+  position: sticky;
+  top: 6rem;
+
+  align-self: start;
+  height: fit-content;
+
+  width: 100%;
+  min-width: 0;
+  padding-right: 1.5rem;
+}
+
+.work-filter-panel {
+  position: static;
+}
+
+.work-sidebar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  width: 1px;
+  height: 100%;
+
+  background: var(--color-border-soft);
+}
+
+  .work-project-column {
+    width: 100%;
+    max-width: 56rem;
+    min-width: 0;
+  }
+
+
+
+
+/*
+   Filter sidebar
+*/
+
+.work-filter-heading {
+  margin: 0 0 1rem;
+
+  color: var(--color-text-subtle);
+
+  font-size: 0.72rem;
+  font-weight: 600;
+
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+
+.work-category-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 0.25rem;
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+
+.work-category-button {
+  display: flex;
+  align-items: center;
+
+  gap: 0.65rem;
+
+  width: 100%;
+
+  padding: 0.55rem 0.65rem;
+
+  border: 1px solid transparent;
+  border-radius: 0.45rem;
+
+  color: var(--color-text-muted);
+  background: transparent;
+
+  font-size: 0.86rem;
+  line-height: 1.3;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+
+.work-category-button:hover {
+  color: var(--color-text);
+
+  background:
+    var(--color-interface-accent-soft);
+}
+
+
+.work-category-button.active {
+  color: var(--color-background);
+
+  background: var(--color-text);
+
+  border-color: var(--color-text);
+}
+
+
+.work-category-button.active:hover {
+  color: var(--color-background);
+
+  background: var(--color-text);
+
+  border-color: var(--color-text);
+}
+
+
+.work-category-icon {
+  flex-shrink: 0;
+}
+
+
+.work-tech-filter {
+  margin-top: 2rem;
+}
+
+
+.work-tech-label {
+  display: block;
+
+  margin-bottom: 0.6rem;
+
+  color: var(--color-text-subtle);
+
+  font-size: 0.72rem;
+  font-weight: 600;
+
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+
+.work-tech-select {
+  width: 100%;
+
+  padding: 0.6rem 0.75rem;
+
+  border: 1px solid var(--color-border);
+  border-radius: 0.45rem;
+
+  color: var(--color-text);
+  background: var(--color-surface);
+
+  font-size: 0.8rem;
+
+  cursor: pointer;
+  outline: none;
+
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+
+.work-tech-select:hover {
+  border-color: var(--color-interface-accent);
+}
+
+
+.work-tech-select:focus {
+  border-color: var(--color-interface-accent);
+
+  box-shadow:
+    0 0 0 3px var(--color-interface-accent-soft);
+}
+
+
+.work-tech-select option {
+  color: var(--color-text);
+
+  background: var(--color-surface);
+}
+
+
+  /*
+     Project entry
+  */
+
+  .project-entry {
+    position: relative;
+    padding: 1.5rem;
+    margin-bottom: 4rem;
+
+    border: 1.5px solid
+      color-mix(
+        in srgb,
+        var(--project-accent) 40%,
+        var(--color-primary-50)
+      );
+
+    border-top: 0.75px solid var(--project-accent);
+    border-radius: 0.9rem;
+
+    background:
+      color-mix(
+        in srgb,
+        var(--project-accent) 12%,
+        transparent
+      );
+  }
+
+  .project-entry::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 2rem;
+    width: 90px;
+    height: 5px;
+    background: var(--project-accent);
+    border-radius: 0 0 4px 4px;
+  }
+
+  .project-entry:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    width: 72px;
+    height: 2px;
+    left: 50%;
+    bottom: -2rem;
+    transform: translateX(-50%);
+    background: var(--color-primary-50);
+    opacity: 0.65;
+  }
+
+
+  /*
+     Project tags
+  */
+  .project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.7;
+  }
+
+  .project-tags span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .project-tags span:not(:last-child)::after {
+    content: "·";
+    margin-left: 0.2rem;
+  }
+
+  .project-tag-docker {
+    opacity: 0.8;
+  }
+
+
+  /*
+     Categories
+  */
+
+  .project-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .project-categories span {
+    border: 1.5px solid
+      color-mix(
+        in srgb,
+        var(--project-accent) 80%,
+        currentColor
+      );
+
+    border-radius: 999px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+
+    background:
+      color-mix(
+        in srgb,
+        var(--project-accent) 10%,
+        transparent
+      );
+  }
+
+
+  /* 
+     Project gallery
+  */
+
+  .project-gallery {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0.85rem 0 0.85rem;
+  }
+
+  .project-gallery-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .project-gallery-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .project-gallery-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .project-gallery-item {
+    margin: 0;
+    min-width: 0;
+    overflow: hidden;
+    border-radius: 0.45rem;
+  }
+
+  .project-gallery-item img {
+    display: block;
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    transition:
+      transform 250ms ease,
+      filter 250ms ease;
+  }
+
+  .project-gallery-item:hover img {
+    transform: scale(1.015);
+  }
+
+
+  /* 
+     Title
+  */
+
+  .project-title-row {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.1rem;
+  }
+
+  .project-title {
+    margin: 0;
+    font-size: 1.8rem;
+    line-height: 1.2;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .project-year {
+    display: inline;
+    font-size: 0.9rem;
+    opacity: 0.55;
+    margin-left: 0.5rem
+  }
+
+  .project-year::before {
+    content: "·";
+    margin-right: 0.7rem;
+  }
+
+
+  /*
+     External resources
+  */
+
+  .project-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 0.25rem 0 0.1rem;
+    font-size: 0.9rem;
+  }
+
+  .project-links a {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    transition:
+      color 180ms ease,
+      opacity 180ms ease;
+  }
+
+  .project-links a:hover {
+    color: var(--project-accent);
+  }
+
+
+  /* 
+     What / How / Results / Reflection
+  */
+
+  .project-section {
+    margin-top: 0.75rem;
+  }
+
+  .project-section h3 {
+    margin: 0 0 0.3rem;
+    font-size: 1.1rem;
+    line-height: 1.3;
+    font-weight: 600;
+  }
+
+  .project-section p {
+    margin: 0;
+    font-family: serif;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .project-section ul {
+    list-style: disc;
+    margin: 0;
+    padding-left: 1.5rem;
+  }
+
+  .project-section li {
+    margin-bottom: 0.3rem;
+    font-family: serif;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .project-reflection {
+    max-width: 800px;
+    border-left: 2px solid var(--project-accent);
+    padding-left: 1rem;
+  }
+
+  /*
+     In text Links
+  */
+  .project-inline-link {
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+.project-inline-link:hover {
+  color: var(--project-accent);
+}
+
+
+  /*
+     Skills / tools
+  */
+
+  .project-tech {
+    margin-top: 0.85rem;
+  }
+
+  .project-tech ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project-tech li {
+    font-size: 0.9rem;
+    opacity: 0.75;
+  }
+
+  .project-tech li:not(:last-child)::after {
+    content: " · ";
+    margin: 0 0.4rem;
+    opacity: 0.6;
+  }
+
+
+  /* 
+     Footer / detailed project link
+  */
+
+  .project-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .project-case-study {
+    display: inline-block;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+    transition: color 180ms ease;
+  }
+
+  .project-case-study:hover {
+    color: var(--project-accent);
+  }
+
+
+  /* 
+     Tablet
+  */
+
+  @media (max-width: 900px) {
+
+    .work-layout {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+
+    .work-sidebar {
+      position: static;
+      top: auto;
+      height: auto;
+      padding-right: 0;
+    }
+
+    .work-sidebar::after {
+      display: none;
+    }
+
+    .work-filter-panel {
+      position: static;
+    }
+
+    .work-category-list {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .work-category-button {
+      width: auto;
+
+      padding: 0.5rem 0.75rem;
+
+      border: 1px solid var(--color-border);
+      border-radius: 999px;
+    }
+
+
+    .work-category-button.active {
+      border-color: var(--color-text);
+    }
+
+    .work-tech-filter {
+      max-width: 20rem;
+      margin-top: 1.25rem;
+    }
+
+    .work-project-column {
+      width: 100%;
+      max-width: 56rem;
+      margin-inline: auto;
+    }
+
+    .project-gallery-3,
+    .project-gallery-4 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+
+  /*
+     Mobile
+  */
+
+  @media (max-width: 640px) {
+
+    .project-entry {
+      padding: 1.35rem;
+      margin-bottom: 3rem;
+    }
+
+    .project-entry::before {
+      left: 1.35rem;
+    }
+
+    .project-entry:not(:last-child)::after {
+      bottom: -1.5rem;
+    }
+
+    .work-tech-filter {
+      max-width: 100%;
+    }
+
+    .work-tech-select {
+      width: 100%;
+    }
+
+    .project-gallery,
+    .project-gallery-2,
+    .project-gallery-3,
+    .project-gallery-4 {
+      grid-template-columns: 1fr;
+    }
+
+    .project-title-row {
+      gap: 0.1rem;
+    }
+
+    .project-title {
+      font-size: 1.5rem;
+    }
+
+    .project-year {
+      font-size: 0.85rem;
+    }
+
+    .project-gallery-item img {
+      height: 220px;
+    }
+
+    .project-footer {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+
+</style>
+
+
+<script is:inline>
+  document.addEventListener("astro:page-load", (pageLoadEvent) => {
+    const isOnProjectsPage =
+      pageLoadEvent.target.location.pathname.includes("projects");
+
+    if (!isOnProjectsPage) return;
+
+    let activeCategory = "all";
+    let activeTech = "";
+
+    const categoryFilterElement =
+      document.querySelector("[data-category-filter]");
+
+    const techFilterElement =
+      document.querySelector("[data-tech-filter]");
+
+    const worksElement =
+      document.querySelector("[data-works]");
+
+    const noResultsElement =
+      document.querySelector("[data-no-results]");
+
+
+    function updateProjectList() {
+
+      /*
+         Update category button styling
+      */
+
+      categoryFilterElement
+        ?.querySelectorAll("button")
+        .forEach((button) => {
+
+          const category = button.dataset.category;
+
+          button.classList.toggle(
+            "active",
+            activeCategory === category
+          );
+
+        });
+
+
+      /* 
+         Filter projects
+      */
+
+      let visibleProjectCount = 0;
+
+      worksElement
+        ?.querySelectorAll("[data-tech]")
+        .forEach((work) => {
+
+          const workTechs =
+            work.dataset.tech?.split(",") || [];
+
+          const workCategories =
+            work.dataset.categories?.split(",") || [];
+
+
+          const matchesCategory =
+            activeCategory === "all" ||
+            workCategories.includes(activeCategory);
+
+
+          const matchesTechnology =
+            !activeTech ||
+            workTechs.includes(activeTech);
+
+
+          const shouldShow =
+            matchesCategory &&
+            matchesTechnology;
+
+
+          if (shouldShow) {
+
+            work.classList.remove("hidden");
+
+            visibleProjectCount++;
+
+          } else {
+
+            work.classList.add("hidden");
+
+          }
+
+        });
+
+
+      /*
+         Empty state
+      */
+
+      noResultsElement?.classList.toggle(
+        "hidden",
+        visibleProjectCount !== 0
+      );
+
+    }
+
+
+    /*
+       Category filter
+    */
+
+    categoryFilterElement?.addEventListener("click", (e) => {
+
+      const targetElement = e.target;
+
+      if (!(targetElement instanceof HTMLElement)) return;
+
+      const button =
+        targetElement.closest("button");
+
+      if (!button) return;
+
+      const category =
+        button.dataset.category;
+
+      if (!category) return;
+
+      activeCategory = category;
+
+      updateProjectList();
+
+    });
+
+
+    /*
+       Technology filter
+    */
+
+    techFilterElement?.addEventListener("change", (e) => {
+
+      const targetElement = e.target;
+
+      if (!(targetElement instanceof HTMLSelectElement)) return;
+
+      activeTech = targetElement.value;
+
+      updateProjectList();
+
+    });
+
+
+    /*
+       Initial state
+    */
+
+    updateProjectList();
+
+  });
+</script>

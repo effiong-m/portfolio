@@ -2,7 +2,6 @@
  * Resolve asset path with base URL
  * @param path The asset path
  * @returns The resolved asset path with base URL
- * @example resolveAsset('/assets/logo.svg') => '/base/assets/logo.svg'
  */
 // eslint-disable-next-line import/prefer-default-export
 export function resolveAsset(path: string) {

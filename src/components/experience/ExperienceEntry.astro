@@ -1,0 +1,445 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  experience: CollectionEntry<'experience'>;
+  locale: string;
+}
+
+const { experience, locale } = Astro.props;
+const { data } = experience;
+
+const dateFormatter = new Intl.DateTimeFormat(locale, {
+  month: 'short',
+  year: 'numeric',
+});
+
+const startDate = dateFormatter.format(data.startDate);
+
+const endDate = data.endDate
+  ? dateFormatter.format(data.endDate)
+  : 'Present';
+---
+
+<article
+  class="experience-entry"
+  data-category={data.category}
+  style={`--experience-accent: ${data.themeColor};`}
+>
+
+  <!-- Category -->
+  <p class="experience-category">
+    {data.category}
+  </p>
+
+
+  <!-- Organization + Dates -->
+  <div class="experience-heading">
+
+  <h2 class="experience-organization">
+    {data.organization}
+  </h2>
+
+  <div class="experience-role-row">
+
+    <h3 class="experience-role">
+      {data.title}
+    </h3>
+
+    <span class="experience-role-divider">
+      ·
+    </span>
+
+    <p class="experience-date">
+      {startDate} – {endDate}
+    </p>
+
+  </div>
+
+</div>
+
+
+  <!-- Location -->
+  {
+    data.location && (
+      <p class="experience-location">
+        {data.location}
+      </p>
+    )
+  }
+
+
+  <!-- Resources -->
+  {
+    data.resources &&
+    data.resources.length > 0 && (
+      <ul class="experience-resources">
+        {data.resources.map((resource) => (
+          <li>
+            <a
+              href={resource.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {resource.label} ↗
+            </a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+
+  <!-- What -->
+  <section class="experience-section">
+    <h4>what?</h4>
+
+    <p>
+      {data.description}
+    </p>
+  </section>
+
+
+  <!-- Contributions -->
+  {
+    data.contributions &&
+    data.contributions.length > 0 && (
+      <section class="experience-section">
+        <h4>worked on?</h4>
+
+        <ul>
+          {data.contributions.map((contribution) => (
+            <li>{contribution}</li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+
+  <!-- Impact -->
+  {
+    data.impact &&
+    data.impact.length > 0 && (
+      <section class="experience-section experience-impact">
+        <h4>impact?</h4>
+
+        <ul>
+          {data.impact.map((item) => (
+            <li>{item}</li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+
+  <!-- Reflection -->
+  {
+    data.reflection && (
+      <section class="experience-section experience-reflection">
+        <h4>reflection?</h4>
+
+        <p>
+          {data.reflection}
+        </p>
+      </section>
+    )
+  }
+
+
+  <!-- Skills -->
+  {
+    data.tech &&
+    data.tech.length > 0 && (
+      <div class="experience-tech">
+
+        <p class="experience-tech-heading">
+          Skills & tools
+        </p>
+
+        <ul>
+          {data.tech.map((tech) => (
+            <li>{tech}</li>
+          ))}
+        </ul>
+
+      </div>
+    )
+  }
+
+</article>
+
+
+<style>
+
+    .experience-entry {
+        position: relative;
+
+        padding: 2rem 1.5rem 3rem;
+        margin-bottom: 3rem;
+
+        border: 1px solid
+            color-mix(
+            in srgb,
+            currentColor 18%,
+            transparent
+            );
+    }
+
+    .experience-entry::before {
+        content: "";
+
+        position: absolute;
+
+        top: 0;
+        left: 2rem;
+
+        width: 90px;
+        height: 5px;
+
+        background: var(--experience-accent);
+
+        border-radius: 0 0 4px 4px;
+    }
+
+
+
+  
+
+  .experience-category {
+    margin: 0 0 0.6rem;
+
+    font-size: 0.72rem;
+    font-weight: 600;
+
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+
+    color: var(--experience-accent);
+}
+
+
+  .experience-heading {
+  display: block;
+}
+
+.experience-role-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem;
+
+  margin-top: 0.25rem;
+}
+
+.experience-role {
+  margin: 0;
+
+  font-size: 1.05rem;
+  font-weight: 400;
+
+  opacity: 0.82;
+}
+
+.experience-role-divider {
+  opacity: 0.4;
+}
+
+.experience-date {
+  margin: 0;
+
+  font-size: 0.88rem;
+
+  opacity: 0.55;
+}
+
+
+  .experience-organization {
+    margin: 0;
+
+    font-size: 1.8rem;
+    line-height: 1.2;
+    font-weight: 600;
+  }
+
+
+  .experience-date {
+    flex-shrink: 0;
+
+    margin: 0;
+
+    font-size: 0.85rem;
+
+    opacity: 0.55;
+  }
+
+
+  .experience-location {
+    margin-top: 0.4rem;
+
+    font-size: 0.85rem;
+
+    opacity: 0.55;
+  }
+
+
+  .experience-resources {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 1rem;
+
+    margin: 0.8rem 0 0;
+    padding: 0;
+
+    list-style: none;
+
+    font-size: 0.9rem;
+  }
+
+
+  .experience-resources a {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+
+  .experience-resources a:hover {
+    color: var(--experience-accent);
+  }
+
+
+  .experience-section {
+    margin-top: 1.6rem;
+  }
+
+
+  .experience-section h4 {
+    margin: 0 0 0.45rem;
+
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+
+  .experience-section p {
+    margin: 0;
+
+    font-family: serif;
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+
+
+  .experience-section ul {
+    margin: 0;
+    padding-left: 1.4rem;
+
+    list-style: disc;
+  }
+
+
+  .experience-section li {
+    margin-bottom: 0.4rem;
+
+    font-family: serif;
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+    .experience-impact {
+  padding: 1rem 1.15rem;
+
+  border-left: 3px solid var(--experience-accent);
+
+  background:
+    color-mix(
+      in srgb,
+      var(--experience-accent) 7%,
+      transparent
+    );
+}
+
+  .experience-reflection {
+  max-width: 44rem;
+
+  padding-left: 1rem;
+
+  border-left: 2px solid
+    color-mix(
+      in srgb,
+      var(--experience-accent) 60%,
+      transparent
+    );
+
+  opacity: 0.9;
+}
+
+  .experience-tech {
+    margin-top: 2rem;
+  }
+
+
+  .experience-tech-heading {
+    margin: 0 0 0.4rem;
+
+    font-size: 0.72rem;
+    font-weight: 600;
+
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+
+    opacity: 0.55;
+  }
+
+
+  .experience-tech ul {
+    display: flex;
+    flex-wrap: wrap;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+  }
+
+
+  .experience-tech li {
+    font-size: 0.88rem;
+
+    opacity: 0.75;
+  }
+
+
+  .experience-tech li:not(:last-child)::after {
+    content: " · ";
+
+    margin: 0 0.4rem;
+
+    opacity: 0.6;
+  }
+
+
+  @media (max-width: 640px) {
+
+    .experience-entry {
+      padding: 1.35rem;
+    }
+
+    .experience-entry::before {
+      left: 1.35rem;
+    }
+
+    .experience-heading {
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .experience-organization {
+      font-size: 1.5rem;
+    }
+
+  }
+
+</style>

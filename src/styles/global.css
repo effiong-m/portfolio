@@ -1,6 +1,12 @@
 @import 'tailwindcss';
 @config "../../tailwind.config.ts";
 @plugin "@tailwindcss/typography";
+
+
+/* ==========================================
+   TAILWIND THEME
+========================================== */
+
 @theme inline {
   --text-xs--line-height: calc(1 / 0.75);
   --text-sm--line-height: calc(1.25 / 0.875);
@@ -16,99 +22,241 @@
   --text-8xl--line-height: calc(3 / 2.25);
   --text-9xl--line-height: calc(3 / 2.25);
 
-  --color-primary-50: oklch(98.5% 0.001 106.423);
-  --color-primary-100: oklch(97% 0.001 106.424);
-  --color-primary-200: oklch(92.3% 0.003 48.717);
-  --color-primary-300: oklch(86.9% 0.005 56.366);
-  --color-primary-400: oklch(70.9% 0.01 56.259);
-  --color-primary-500: oklch(55.3% 0.013 58.071);
-  --color-primary-600: oklch(44.4% 0.011 73.639);
-  --color-primary-700: oklch(37.4% 0.01 67.558);
-  --color-primary-800: oklch(26.8% 0.007 34.298);
-  --color-primary-900: oklch(21.6% 0.006 56.043);
-  --color-primary-950: oklch(14.7% 0.004 49.25);
+
+  /*
+    Portfolio neutral scale
+
+    50  = warm ivory
+    950 = deep charcoal
+
+    Keeping the normal light -> dark scale means
+    existing Tailwind classes continue to make sense.
+  */
+
+  --color-primary-50: #f3f0e8;
+  --color-primary-100: #e7e3da;
+  --color-primary-200: #cec9bf;
+  --color-primary-300: #ada9a0;
+  --color-primary-400: #898b84;
+  --color-primary-500: #696e69;
+  --color-primary-600: #505651;
+  --color-primary-700: #393f3c;
+  --color-primary-800: #272d2a;
+  --color-primary-900: #1b201e;
+  --color-primary-950: #111513;
 
   --color-accent: rgb(var(--accent-color));
 }
+
+
+/* ==========================================
+   CONTAINER
+========================================== */
 
 @utility container {
   @media (width >= --theme(--breakpoint-sm)) {
     max-width: none;
   }
+
   @media (width >= 1472px) {
     max-width: 1472px;
   }
 }
 
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
 
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
+/* ==========================================
+   TAILWIND V4 BORDER COMPATIBILITY
+========================================== */
+
 @layer base {
   *,
   ::after,
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
+    border-color: var(--color-primary-700, currentColor);
   }
 }
+
+
+/* ==========================================
+   GLOBAL DESIGN TOKENS
+========================================== */
 
 @layer base {
   :root {
     interpolate-size: allow-keywords;
-    --primary-color-50: 248 250 251;
-    --primary-color-100: 235 239 251;
-    --primary-color-200: 214 214 247;
-    --primary-color-300: 180 178 236;
-    --primary-color-400: 151 137 222;
-    --primary-color-500: 126 101 210;
-    --primary-color-600: 103 73 190;
-    --primary-color-700: 78 54 155;
-    --primary-color-800: 54 38 110;
-    --primary-color-900: 34 24 75;
-    --primary-color-1000: 13 10 40;
-    --accent-color: 255 168 8;
-    --accent-color-hex: #ffa808;
+
+
+    /*
+      Legacy/template variables
+
+      Keep these for now because other template components
+      may still reference them. They now match the new
+      portfolio palette instead of the original purple.
+    */
+
+    --primary-color-50: 243 240 232;
+    --primary-color-100: 231 227 218;
+    --primary-color-200: 206 201 191;
+    --primary-color-300: 173 169 160;
+    --primary-color-400: 137 139 132;
+    --primary-color-500: 105 110 105;
+    --primary-color-600: 80 86 81;
+    --primary-color-700: 57 63 60;
+    --primary-color-800: 39 45 42;
+    --primary-color-900: 27 32 30;
+    --primary-color-1000: 17 21 19;
+
+
+    /* Main portfolio accent */
+    --accent-color: 127 165 159;
+    --accent-color-hex: #7fa59f;
+
+
+    /*
+      Semantic colors
+
+      Start using these for new components rather than
+      relying directly on numbered primary values.
+    */
+
+    --color-background: #111513;
+    --color-surface: #1b201e;
+    --color-surface-soft: #202623;
+
+    --color-text: #f3f0e8;
+    --color-text-muted: #adafa8;
+    --color-text-subtle: #7f8580;
+
+    --color-border: #393f3c;
+    --color-border-soft: #292f2c;
+
+    --color-interface-accent: #7fa59f;
+    --color-interface-accent-hover: #96b8b2;
+    --color-interface-accent-soft: rgba(127, 165, 159, 0.12);
+
+
+    /*
+      Layout
+    */
+
     --navbar-height: 10rem;
 
-    --z-index-work-ribbon: calc(var(--z-index-work-thumbnail) * var(--z-index-gap));
-    --z-index-work-thumbnail: calc(var(--z-index-base) * var(--z-index-gap));
-    /* --- Above 0 z-index --- */
+    --content-max: 72rem;
+    --reading-max: 56rem;
+    --sidebar-width: 13rem;
+
+
+    /*
+      Radius
+    */
+
+    --radius-small: 0.4rem;
+    --radius-medium: 0.7rem;
+    --radius-large: 0.9rem;
+
+
+    /*
+      Motion
+    */
+
+    --transition-fast: 160ms ease;
+    --transition-normal: 240ms ease;
+
+
+    /*
+      Existing z-index system
+    */
+
+    --z-index-work-ribbon:
+      calc(var(--z-index-work-thumbnail) * var(--z-index-gap));
+
+    --z-index-work-thumbnail:
+      calc(var(--z-index-base) * var(--z-index-gap));
+
     --z-index-base: 1;
     --z-index-gap: 10;
-    /* --- Below 0 z-index --- */
   }
+
+  html[data-theme='light'] {
+    --color-background: #f2f0e9;
+    --color-surface: #f7f5ef;
+    --color-surface-soft: #eae8e1;
+
+    --color-text: #202321;
+    --color-text-muted: #686d69;
+    --color-text-subtle: #858a86;
+
+    --color-border: #c9cdc8;
+    --color-border-soft: #dddfdb;
+
+    --color-interface-accent: #597f79;
+    --color-interface-accent-hover: #456c66;
+    --color-interface-accent-soft: rgba(89, 127, 121, 0.1);
+
+    color-scheme: light;
+  }
+
+
+  /* ========================================
+     GLOBAL PAGE
+  ======================================== */
+
+ 
+html {
+    background-color: var(--color-background);
+    color-scheme: dark;
+  }
+
+  body {
+    min-height: 100vh;
+
+    color: var(--color-text);
+    background-color: var(--color-background);
+  }
+
+
+  /* ========================================
+     HIGHLIGHT
+  ======================================== */
 
   .highlight {
-    @apply relative whitespace-nowrap;
+    position: relative;
+    white-space: nowrap;
+    z-index: 0;
   }
+
 
   .highlight::after {
-    @apply absolute bottom-1 left-0 block w-full md:h-2 h-0.5 opacity-60 bg-accent transition-all rounded-sm  -z-10;
     content: '';
-    background-image: var(--globalHighlightTextureImage);
-    background-size: 400px;
-    background-repeat: repeat;
-    animation: resize 3s infinite;
-    animation-timing-function: steps(12, start);
+
+    position: absolute;
+
+    left: 0;
+    bottom: 0.08em;
+
+    width: 100%;
+    height: 0.28em;
+
+    border-radius: 0.15rem;
+
+    background: var(--color-interface-accent);
+
+    opacity: 0.35;
+
+    z-index: -1;
+
+    transition:
+      height var(--transition-normal),
+      opacity var(--transition-normal),
+      transform var(--transition-normal);
   }
+
 
   .highlight:hover::after {
-    @apply -skew-x-3;
-    height: 80%;
-  }
-
-  @keyframes resize {
-    0% {
-      background-position: top left;
-    }
-    100% {
-      background-position: bottom right;
-    }
+    height: 0.5em;
+    opacity: 0.48;
+    transform: skewX(-2deg);
   }
 }

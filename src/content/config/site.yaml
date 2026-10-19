@@ -1,89 +1,78 @@
-favicons:
-  "16": /assets/global/favicon/favicon-16x16.png
-  "32": /assets/global/favicon/favicon-32x32.png
-  "512": /assets/global/favicon/favicon-512x512.png
-  android-chrome-192: /assets/global/favicon/android-chrome-192x192.png
-  android-chrome-512: /assets/global/favicon/android-chrome-512x512.png
-  apple-touch-icon: /assets/global/favicon/apple-touch-icon.png
-globalOgImage:
-  url: /assets/global/og.jpg
-  height: 630
-  width: 1200
-  type: image/jpeg
 website:
-  name: Letter
-  username: Joe
-  email: example@example.com
-  emojiStatus: ✉️
-  globalBackgroundTextureImage: /assets/global/nature-paper.webp
-  globalHighlightTextureImage: /assets/global/highlight-texture.webp
+  name: Miracle Effiong
+  username: Miracle
+  email: miracle.effiong@alumni.utoronto.ca
+
   socials:
-    - name: Blog
-      url: https://example.com/
+    - name: LinkedIn
+      url: "https://www.linkedin.com/in/miracle-effiong-717881233/"
+
     - name: GitHub
-      url: https://example.com/
-    - name: Threads
-      url: https://example.com/
-    - name: Behance
-      url: https://example.com/
-    - name: CakeResume
-      url: https://example.com/
-heroVideo:
-  poster: /assets/global/hero.webp
-  sources:
-    - src: /assets/global/hero.webm
-      type: video/webm
-    - src: /assets/global/hero.mp4
-      type: video/mp4
+      url: "https://github.com/effiong-m"
+
 techGroups:
   - id: "Work-TechGroup-all"
     relatedTechs: []
     icon: "material-symbols:person-play-outline-rounded"
-    themeColor: "#171717"
-  - id: "Work-TechGroup-UserInterface"
+    themeColor: "#7F8580"
+
+  - id: "Work-TechGroup-AIML"
     relatedTechs:
-      - "Bootstrap"
-      - "Chart.js"
-      - "Daisy UI"
-      - "Framer Motion"
-      - "GSAP"
-      - "Shadcn UI"
-    icon: "material-symbols:layers-outline-rounded"
-    themeColor: "#5c038f"
-  - id: "Work-TechGroup-Vue"
+      - "Python"
+      - "PyTorch"
+      - "TensorFlow"
+      - "scikit-learn"
+      - "XGBoost"
+      - "Random Forest"
+      - "K-means"
+      - "Pandas"
+    icon: "material-symbols:model-training-outline-rounded"
+    themeColor: "#9787AD"
+
+  - id: "Work-TechGroup-Biomedical"
     relatedTechs:
-      - "Nuxt(Vue)"
-      - "Pinia"
-      - "Vue"
-      - "Vue Router"
-    icon: "mdi:vuejs"
-    themeColor: "#33a06f"
-  - id: "Work-TechGroup-React"
+      - "MATLAB"
+      - "Sensors"
+      - "Arduino"
+      - "BCI"
+    icon: "material-symbols:cardiology"
+    themeColor: "#76A0A8"
+
+  - id: "Work-TechGroup-Hardware"
     relatedTechs:
-      - "Next(React)"
-      - "React"
-      - "React Router"
-    icon: "mdi:react"
-    themeColor: "#087ea4"
-  - id: "Work-TechGroup-Testing"
+      - "C/C++"
+      - "Arduino"
+      - "Embedded Systems"
+      - "Fusion360"
+      - "CAD"
+      - "3D Printing"
+      - "Prototyping"
+    icon: "material-symbols:memory-outline-rounded"
+    themeColor: "#8B9E70"
+
+  - id: "Work-TechGroup-Data"
     relatedTechs:
-      - "Playwright"
-      - "Vitest"
-      - "Cypress"
-      - "Lighthouse CI"
-      - "Node.js Test Runner"
-      - "Go Test"
-    icon: "material-symbols:thermostat-rounded"
-    themeColor: "#608f03"
-  - id: "Work-TechGroup-CLI"
+      - "Python"
+      - "Pandas"
+      - "Data Analysis"
+      - "Data Visualization"
+      - "Streamlit"
+    icon: "material-symbols:analytics-outline-rounded"
+    themeColor: "#788CA9"
+
+  - id: "Work-TechGroup-Programming"
     relatedTechs:
-      - "CLI"
-    icon: "material-symbols:terminal-rounded"
-    themeColor: "#e74c3c"
-  - id: "Work-TechGroup-Database"
+      - "Python"
+      - "C/C++"
+      - "MATLAB"
+      - "JavaScript"
+      - "TypeScript"
+    icon: "material-symbols:code-rounded"
+    themeColor: "#AB7E76"
+
+  - id: "Work-TechGroup-Product"
     relatedTechs:
-      - "Supabase(Postgres)"
-      - "MySQL"
-      - "Drizzle ORM"
-    icon: "material-symbols:database-outline"
-    themeColor: "#03118f"
+      - "Product Management"
+      - "Agile"
+    icon: "material-symbols:strategy-rounded"
+    themeColor: "#A98B63"

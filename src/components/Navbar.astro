@@ -72,14 +72,13 @@ function isActiveNavItem(navItem: string) {
                   data-active={active ? 'true' : 'false'}
                   class={`nav-link ${active ? 'nav-link-active' : ''}`}
                   href={resolveAsset(url)}
-                  )}
                 >
                   {name}
                 </a>
               </li>
             );
           })
-        }
+        }      
       </ul>
     </div>
 
@@ -125,18 +124,6 @@ function isActiveNavItem(navItem: string) {
       }
     }
 
-    function setTheme(theme) {
-      document.documentElement.dataset.theme = theme;
-
-      try {
-        localStorage.setItem(THEME_KEY, theme);
-      } catch {
-        // Keep the theme working for this page even if storage is unavailable.
-      }
-
-      syncThemeToggle();
-    }
-
     function syncThemeToggle() {
       const button = document.querySelector('[data-theme-toggle]');
       if (!(button instanceof HTMLButtonElement)) return;
@@ -159,6 +146,18 @@ function isActiveNavItem(navItem: string) {
         'aria-label',
         theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'
       );
+    }
+
+    function setTheme(theme) {
+      document.documentElement.dataset.theme = theme;
+
+      try {
+        localStorage.setItem(THEME_KEY, theme);
+      } catch {
+        // Keep the theme working for this page even if storage is unavailable.
+      }
+
+      syncThemeToggle();
     }
 
     function updateNavIndicator() {
@@ -192,11 +191,11 @@ function isActiveNavItem(navItem: string) {
       });
     }
 
-    if (!window.__portfolioNavbarListenersAdded) {
-      window.__portfolioNavbarListenersAdded = true;
+    if (!window.portfolioNavbarListenersAdded) {
+      window.portfolioNavbarListenersAdded = true;
 
       document.addEventListener('click', (event) => {
-        const target = event.target;
+        const {target} = event;
         if (!(target instanceof Element)) return;
 
         const button = target.closest('[data-theme-toggle]');

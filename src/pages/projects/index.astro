@@ -7,9 +7,10 @@ import { Icon } from 'astro-icon/components';
 import { resolveAsset } from '@/utils/paths.ts';
 import type { AllowedTechs } from '@/content.config';
 
-const publicProjects = await getCollection('project', (project) => {
-  return !project.data.draft;
-});
+const publicProjects = await getCollection(
+  'project',
+  (project) => !project.data.draft
+);
 
 const sortedProjects = publicProjects.sort(
   (a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime()
@@ -1073,7 +1074,7 @@ const projectCategories = [
         ?.querySelectorAll("button")
         .forEach((button) => {
 
-          const category = button.dataset.category;
+          const {category} = button.dataset;
 
           button.classList.toggle(
             "active",
@@ -1119,7 +1120,7 @@ const projectCategories = [
 
             work.classList.remove("hidden");
 
-            visibleProjectCount++;
+            visibleProjectCount += 1;
 
           } else {
 
@@ -1157,8 +1158,7 @@ const projectCategories = [
 
       if (!button) return;
 
-      const category =
-        button.dataset.category;
+      const {category} = button.dataset;
 
       if (!category) return;
 

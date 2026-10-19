@@ -372,8 +372,7 @@ const experienceCategories = [
           ?.querySelectorAll("[data-experience]")
           .forEach((experience) => {
 
-            const category =
-              experience.dataset.category;
+            const {category} = experience.dataset;
 
 
             const shouldShow =
@@ -388,7 +387,7 @@ const experienceCategories = [
 
 
             if (shouldShow) {
-              visibleCount++;
+              visibleCount += 1;
             }
 
           });
@@ -406,7 +405,7 @@ const experienceCategories = [
         "click",
         (event) => {
 
-          const target = event.target;
+          const {target} = event;
 
           if (!(target instanceof HTMLElement)) {
             return;
@@ -422,8 +421,7 @@ const experienceCategories = [
           }
 
 
-          const category =
-            button.dataset.category;
+          const {category} = button.dataset;
 
 
           if (!category) {
